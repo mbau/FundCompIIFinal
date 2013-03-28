@@ -1,0 +1,220 @@
+#include "SDL/SDL.h"
+#include "SDL/SDL_image.h"//enables using other file formats
+#include <string>
+
+//screen dimensions. 800x600
+const int SCREEN_WIDTH=800;
+const int SCREEN_HEIGHT=600;
+const int SCREEN_BPP=32;
+
+const int FRAMES_PER_SECOND=20;//fps for animation
+
+const int DOT_WIDTH=20;//dimensions for the dot that moves around
+const int DOT_HEIGHT=20;//dot is just a place holder for the enemy
+
+SDL_Surface *dot=NULL;//ptr for dot
+SDL_Surface *background=NULL;//ptr for background
+SDL_Surface *screen=NULL;//ptr for screen
+
+SDL_Event event;//event to read things such as mouse clicks and keyboard
+
+class Dot
+{
+private:
+  int x, y; //x,y for the dot
+	int xVel, yVel;//velocities for the dot
+public:
+	Dot();
+	void move();//moves the dot
+	void show();//shows the dot
+};
+
+class Timer//time class for animation/movement
+{
+private:
+	int startTicks;
+	int pausedTicks;
+	bool paused;
+	bool started;
+public:
+	Timer();
+	void start();
+	void stop();
+	void pause();
+	void unpause();
+	int get_ticks();
+	bool is_started();
+	bool is_paused();
+};
+
+//loads image
+SDL_Surface *load_image(std::string filename)
+{
+	SDL_Surface* loadedImage=NULL;
+	SDL_Surface* optimizedImage=NULL;
+	loadedImage=IMG_Load(filename.c_str());
+	if(loadedImage!=NULL){
+		optimizedImage=SDL_DisplayFormat(loadedImage);
+		SDL_FreeSurface(loadedImage);
+		if(optimizedImage!=NULL){
+			//blits image to get rid of white border
+			Uint32 colorkey=SDL_MapRGB(optimizedImage->format,0xFF,0xFF,0xFF);
+			SDL_SetColorKey(optimizedImage,SDL_SRCCOLORKEY,SDL_MapRGB(optimizedImage->format,0xFF,0xFF,0xFF));
+		}
+	}
+	return optimizedImage;
+}
+
+
+void apply_surface(int x, int y, SDL_Surface* source, SDL_Surface* destination, SDL_Rect* clip=NULL)
+{//displays surface
+	SDL_Rect offset;
+	offset.x=x;
+	offset.y=y;
+	SDL_BlitSurface(source, clip, destination, &offset);
+}
+//initializes screen
+bool init()
+{
+	if(SDL_Init(SDL_INIT_EVERYTHING)==-1) return false;
+	screen=SDL_SetVideoMode(SCREEN_WIDTH,SCREEN_HEIGHT,SCREEN_BPP,SDL_SWSURFACE);
+	if(screen==NULL) return false;
+	SDL_WM_SetCaption("Sample Enemy Movement",NULL);
+	return true;
+}
+//loads images
+bool load_files()
+{
+	dot=load_image("dot.bmp");
+	background=load_image("bg1.png");
+	if(dot==NULL) return false;
+	if(background==NULL) return false;
+	return true;
+}
+//cleans up
+void clean_up()
+{
+	SDL_FreeSurface(dot);
+	SDL_FreeSurface(background);
+	SDL_Quit();
+}
+
+Dot::Dot()//dot constructor
+{//initial start position and velocity
+	x=140;
+	y=-20;
+	xVel=0;
+	yVel=1;
+}
+
+void Dot::move()
+{
+	x+=xVel;
+	y+=yVel;
+	if(x==140 && y==440){//corners for the road, where the enemy turns
+		xVel=1;
+		yVel=0;
+	}
+	if(x==640 && y==440){
+		xVel=0;
+		yVel=-1;
+	}
+	if(x==640 && y==140){
+		xVel=-1;
+		yVel=0;
+	}
+	if(x==340 && y==140){
+		xVel=0;
+		yVel=1;
+	}
+	if(x==340 && y==240){
+		x=140;
+		y=-20;
+	}
+}
+
+void Dot::show()//show dot on screen
+{
+	apply_surface(x,y,dot,screen);
+}
+
+Timer::Timer()//timer constructor
+{
+	startTicks=0;
+	pausedTicks=0;
+	paused=false;
+	started=false;
+}
+
+void Timer::start()//start timer
+{
+	started=true;
+	paused=false;
+	startTicks=SDL_GetTicks();
+}
+
+void Timer::stop()//stop timer
+{
+	started=false;
+	paused=false;
+}
+
+void Timer::pause()//pauses timer, not necessary currently
+{
+	if((started==true)&&(paused==false)){
+		paused=true;
+		pausedTicks=SDL_GetTicks()-startTicks;
+	}
+}
+
+void Timer::unpause()//unpause timer
+{
+	if(paused==true){
+		paused=false;
+		startTicks=SDL_GetTicks()-pausedTicks;
+		pausedTicks=0;
+	}
+}
+
+int Timer::get_ticks()//gets time
+{
+	if(started==true){
+		if(paused==true){
+			return pausedTicks;
+		}
+		else return SDL_GetTicks()-startTicks;
+	}
+	return 0;
+}
+
+bool Timer::is_started()
+{
+	return started;
+}
+
+bool Timer::is_paused()
+{
+	return paused;
+}
+
+int main(int argc,char*args[])
+{
+	bool quit=false;
+	Dot myDot;
+	Timer fps;
+	if(init()==false) return 1;
+	if(load_files()==false) return 1;
+	while(quit==false){
+		fps.start();
+		while(SDL_PollEvent(&event)){
+			if(event.type==SDL_QUIT) quit=true;//quits when X on window is pressed
+		}
+		myDot.move();//moves dot
+		apply_surface(0,0,background,screen);//refreshes background
+		myDot.show();//shows dot
+		if(SDL_Flip(screen)==-1) return 1;
+		if(fps.get_ticks()<1000/FRAMES_PER_SECOND) SDL_Delay((1000/FRAMES_PER_SECOND)-fps.get_ticks());
+	}
+	clean_up();
+	return 0;
+}
