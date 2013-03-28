@@ -1,0 +1,207 @@
+#include "SDL/SDL_image.h"
+#include "SDL/SDL.h"
+#include <string>
+#include <cmath>        //for trigonometry
+
+//screen size
+const int SCREEN_WIDTH = 640;
+const int SCREEN_HEIGHT = 480;
+const int SCREEN_BPP = 32;
+
+//different sprites to be used
+SDL_Surface *circle = NULL;
+SDL_Surface *background = NULL;
+SDL_Surface *screen = NULL;
+
+//event structure
+SDL_Event event;
+
+//properties of moving object
+double xVel = 0.0;
+double yVel = 2.0;
+double xPos = 320;
+double yPos = 240;
+
+//draw surface on screen
+void apply_surface(int x, int y, SDL_Surface* source, SDL_Surface* destination)
+{
+  SDL_Rect offset;
+
+	offset.x = x;
+	offset.y = y;
+
+	SDL_BlitSurface(source, NULL,destination, &offset);
+}
+
+//load images
+SDL_Surface *load_image( std::string filename )
+{
+	SDL_Surface* loadedImage = NULL;
+
+	SDL_Surface* optimizedImage = NULL;
+
+	loadedImage = IMG_Load( filename.c_str() );
+
+	if(loadedImage != NULL)
+	{
+		optimizedImage = SDL_DisplayFormat( loadedImage );
+		SDL_FreeSurface( loadedImage );
+		
+		if(optimizedImage != NULL)
+		{
+			Uint32 colorkey = SDL_MapRGB( optimizedImage->format,0, 0, 0 );
+			SDL_SetColorKey( optimizedImage, SDL_SRCCOLORKEY, colorkey );
+		}
+
+		return optimizedImage;
+	}
+}
+
+//initialization function
+bool init()
+{
+	if(SDL_Init(SDL_INIT_EVERYTHING) == -1)
+	{
+		return false;
+	}
+
+	screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_SWSURFACE);
+	
+	if(screen==NULL)
+	{
+		return false;
+	}
+
+	return true;      //return true if everything is properly initialized
+}
+
+
+//function for loading images
+bool load_files()
+{
+	circle = load_image("circle.bmp");
+	background = load_image("background.bmp");
+
+	if(circle==NULL || background==NULL)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+//clean up for end of program
+void clean_up()
+{
+	SDL_FreeSurface(circle);
+
+	SDL_Quit();
+}
+
+int main(int argx, char* args[])
+{
+	bool quit = false;     //boolean variable for while loop
+	int x=0;
+	int y=0;               //x and y store mouse locations
+
+	if(init() == false)
+	{
+		return 1;
+	}
+
+	if(load_files() == false)
+	{
+		return 1;
+	}
+
+	//apply background surface to screen
+	apply_surface(0,0,background,screen);
+	apply_surface(320,0,background,screen);
+	apply_surface(0,240,background,screen);
+	apply_surface(320,240,background,screen);
+
+	//draw initial circle
+	apply_surface(xPos-65,yPos-50,circle,screen);
+	
+	//main loop
+	while(quit==false)
+	{
+		//movement
+		xPos+=xVel;
+		yPos+=yVel;
+
+		//stop from going off screen
+		if(yPos-50<0 || yPos+50>SCREEN_HEIGHT)
+		{
+			yVel*=-1;
+		}
+
+		if(xPos-65<0 || xPos+65>SCREEN_WIDTH)
+		{
+			xVel*=-1;
+		}
+
+		apply_surface(0,0,background,screen);
+		apply_surface(320,0,background,screen);
+		apply_surface(0,240,background,screen);
+		apply_surface(320,240,background,screen);
+
+		apply_surface(xPos-65,yPos-50,circle,screen);
+
+		//Update
+		if(SDL_Flip(screen) == -1)
+		{
+			return 1;
+		}
+	
+		//if there is an event
+		while(SDL_PollEvent(&event))
+		{	
+			//if left mouse button is pressed
+			if(event.button.button == SDL_BUTTON_LEFT)
+			{
+				
+				//get coordinates of mouseclick
+				x=event.button.x;
+				y=event.button.y;
+
+				//calculate distances between current position and mouseclick
+				double x_Dist = x-xPos;
+				double y_Dist = y-yPos;
+				
+				//use trig to calculate angle
+				double angle = atan(y_Dist/x_Dist);
+
+				//set proper velocities to move towards click
+				if(x>=xPos)
+				{
+					xVel = 2*cos(angle);
+					yVel = 2*sin(angle);
+				}
+				else
+				{
+					xVel = -2*cos(angle);
+					yVel = -2*sin(angle);
+				}	
+										
+			}
+			
+			//quit program event
+			if(event.type == SDL_QUIT)
+			{
+				quit = true;
+			}
+		}
+
+		//Cap frame rate
+		if(SDL_GetTicks()<500)
+		{
+			SDL_Delay(500 - SDL_GetTicks());
+		}
+
+	}
+
+	clean_up();
+
+	return 0;
+}
