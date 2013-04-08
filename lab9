@@ -1,0 +1,289 @@
+
+#include "SDL/SDL_image.h"
+#include "SDL/SDL.h"
+#include <string>
+#include <vector>
+using namespace std;
+
+//screen sizes
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 600;
+const int SCREEN_BPP = 32;
+
+//different sprites to be used
+SDL_Surface *turret = NULL;
+SDL_Surface *enemy = NULL;
+SDL_Surface *background = NULL;
+SDL_Surface *screen = NULL;
+SDL_Surface *square = NULL;
+
+//event structure
+SDL_Event event;
+
+//class for Enemy objects
+class Enemy
+{
+  public:
+		Enemy();
+		Enemy(int,int);
+		void move();
+		void show();
+
+	private:
+		int x,y,xVel,yVel;
+};
+
+//apply surface to screen
+void apply_surface(int x, int y, SDL_Surface* source, SDL_Surface* destination)
+{
+	SDL_Rect offset;
+
+	offset.x = x;
+	offset.y = y;
+
+	SDL_BlitSurface(source, NULL,destination, &offset);
+}
+
+SDL_Surface *load_image( std::string filename )
+{
+	SDL_Surface* loadedImage = NULL;
+
+	SDL_Surface* optimizedImage = NULL;
+
+	loadedImage = IMG_Load( filename.c_str() );
+
+	if(loadedImage != NULL)
+	{
+		optimizedImage = SDL_DisplayFormat( loadedImage );
+		SDL_FreeSurface( loadedImage );
+		
+		if(optimizedImage != NULL)
+		{
+			Uint32 colorkey = SDL_MapRGB( optimizedImage->format,255,255,255 );
+			SDL_SetColorKey( optimizedImage, SDL_SRCCOLORKEY, colorkey );
+		}
+
+		return optimizedImage;
+	}
+}
+
+//initialization function
+bool init()
+{
+	if(SDL_Init(SDL_INIT_EVERYTHING) == -1)
+	{
+		return false;
+	}
+
+	screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_SWSURFACE);
+	
+	if(screen==NULL)
+	{
+		return false;
+	}
+
+	return true;      //return true if everything is properly initialized
+}
+
+//function for loading images
+bool load_files()
+{
+	enemy = load_image("enemy1.bmp");
+	turret = load_image("turret1.bmp");
+	background = load_image("background.bmp");
+	square = load_image("square.bmp");
+	SDL_SetAlpha(square,SDL_SRCALPHA,100);
+
+	if(background==NULL || enemy==NULL || turret==NULL || square==NULL)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+//clean up for end of program
+void clean_up()
+{
+	SDL_FreeSurface(turret);
+	SDL_FreeSurface(enemy);
+	SDL_FreeSurface(background);
+	SDL_FreeSurface(square);
+
+	SDL_Quit();
+}
+
+//two enemy constructors
+Enemy::Enemy()
+{
+	//initial starting position and velocities
+	x=140;
+	y=-20;
+	xVel=0;
+	yVel=1;
+}
+
+Enemy::Enemy(int x1, int y1)
+{
+	//initial starting position and velocities
+	x=x1;
+	y=y1;
+	xVel=0;
+	yVel=1;
+}
+
+//move enemies
+void Enemy::move()
+{
+	x+=xVel;
+	y+=yVel;
+	if(x==140 && y==440)
+	{
+		//corners for the road, where the enemy turns
+		xVel=1;
+		yVel=0;
+	}
+	if(x==640 && y==440)
+	{
+		xVel=0;
+		yVel=-1;
+	}
+	if(x==640 && y==140)
+	{
+		xVel=-1;
+		yVel=0;
+	}
+	if(x==340 && y==140)
+	{
+		xVel=0;
+		yVel=1;
+	}
+	if(x==340 && y==240)
+	{
+		x=140;
+		y=-20;
+	}
+}
+
+void Enemy::show()
+{
+	apply_surface(x-20,y-20,enemy,screen);
+	
+}
+
+int main(int argx, char* args[])
+{
+	bool quit = false;     //boolean variable for while loop
+	int x=0;
+	int y=0;               //x and y store mouse locations
+
+	//show which cell mouse is currently in
+	int mouse_x;
+	int mouse_y;
+
+	//create two enemies
+	Enemy a;
+	Enemy b(140,50);
+	
+	//these vectors store which grid have turrets
+	vector<int> turret_xPos;
+	vector<int> turret_yPos;
+
+	if(init() == false)
+	{
+		return 1;
+	}
+
+	if(load_files() == false)
+	{
+		return 1;
+	}
+
+	//apply background surface to screen
+	apply_surface(0,0,background,screen);
+
+	while(quit==false)
+	{
+		//move enemies
+		a.move();
+		b.move();
+
+		//draw objects on screen
+		apply_surface(0,0,background,screen);
+		
+		//draw objects	
+		a.show();
+		b.show();	
+		
+		//draw turrets
+		for(int i = 0; i < turret_xPos.size(); i++)
+			apply_surface(turret_xPos[i], turret_yPos[i], turret, screen);
+
+		//draw hovering square to show which cell mouse is in
+		apply_surface(mouse_x,mouse_y,square,screen);
+
+		while(SDL_PollEvent(&event))
+		{
+			//whenever cursor is moved
+			if(event.type == SDL_MOUSEMOTION)
+			{
+				x = event.motion.x;
+				y = event.motion.y;
+
+				//draw square on cell in which cursor is hovering
+				for(int i = 0; i <= 700; i+=100)
+				{
+					for(int j = 0; j <= 500; j+=100)
+					{
+						if(x>i && x<i+100 && y>j && y<j+100)
+						{
+							//set variables to reflect current cell
+							mouse_x = i;
+							mouse_y = j;
+						}
+					}
+				}
+			}				
+
+			//if left mouse button is pressed
+			if(event.button.button == SDL_BUTTON_LEFT)
+			{
+				
+				//get coordinates
+				x=event.button.x;
+				y=event.button.y;
+				
+				//draw turret in center of cell that was clicked on
+				for(int i = 0; i <= 700; i+=100)
+				{
+					for(int j = 0; j <= 500; j+=100)
+					{
+						if(x>i && x<i+100 && y>j && y<j+100)
+						{
+							turret_xPos.push_back(i);
+							turret_yPos.push_back(j);
+						}
+					}
+				}
+
+			}
+			
+			//quit program event
+			if(event.type == SDL_QUIT)
+			{
+				quit = true;
+			}
+		}
+
+		//Update
+		if(SDL_Flip(screen) == -1)
+		{
+			return 1;
+		}
+
+	}
+
+	clean_up();
+
+	return 0;
+}
