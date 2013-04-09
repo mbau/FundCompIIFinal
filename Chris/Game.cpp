@@ -1,7 +1,8 @@
-// Game.cpp -- main game functions
+// Game.cpp
+// Main game functions
 
 #include "Game.h"
-#include <iostream>
+#include "Surface.h"	// Graphics utilities
 
 // Default constructor
 Game::Game()
@@ -14,6 +15,8 @@ Game::Game()
 	Display = NULL;
 	SpriteSheet = NULL;
 	currentLevel = NULL;
+
+	Clicked = Hovered = NULL;
 };
 
 // Game setup
@@ -31,7 +34,7 @@ bool Game::Init()
 		return false;
 
 	// Load the sprite sheet
-	SpriteSheet = LoadImage("resources/sprites.bmp");
+	SpriteSheet = Surface::LoadImage("resources/sprites.bmp");
 
 	if (!SpriteSheet)
 		return false;
@@ -42,7 +45,7 @@ bool Game::Init()
 
 
 	// Create a new level
-	currentLevel = new Level;
+	currentLevel = new Level(Display, SpriteSheet);
 	if (!currentLevel->Init("resources/lvl0.txt"))
 		return false;
 
@@ -115,22 +118,16 @@ void Game::Update()
 // Draw stuff
 void Game::Render()
 {
-	// Draw the base grid
-	for (unsigned int i = 0; i < currentLevel->Grid.size(); i++)
-	{
-		for (unsigned int j = 0; j < currentLevel->Grid[0].size(); j++)
-		{
-			Draw(Display, SpriteSheet, 50*j, 50*i,
-					currentLevel->Grid[i][j]*50, 0, 50, 50);
-		}
-	}
-
+	// Clear Screen
+//	Surface::DrawRect(Display, 0, 0, Display->w, Display->h,
+//			255, 255, 255, 255);
+	currentLevel->Render();
 	// ADD TOWERS HERE
 	// ADD ENEMIES HERE
 
 	// Highlight current mouse position
-	DrawRect(Display, 50*(Mouse.x/50), 50*(Mouse.y/50), 50, 50,
-				255, 255, 0, 64);
+//	Surface::DrawRect(Display, 50*(Mouse.x/50), 50*(Mouse.y/50), 50, 50,
+//				255, 255, 0, 64);
 
 	// ADD MENU ITEMS HERE
 
@@ -150,92 +147,8 @@ void Game::Cleanup()
 	SDL_Quit();
 };
 
-// Utility to load and format a BMP image
-SDL_Surface* Game::LoadImage(char* filename)
-{
-	SDL_Surface* Temp = NULL;
-	SDL_Surface* Return = NULL;
 
-	Temp = SDL_LoadBMP(filename);
 
-	if (!Temp)
-		return NULL;
-
-	Return = SDL_DisplayFormat(Temp);
-	SDL_FreeSurface(Temp);
-
-	return Return;
-};
-
-// Blit an entire surface to another surface
-bool Game::Draw(SDL_Surface* Dest, SDL_Surface* Src, int x, int y)
-{
-	if (!Dest || !Src)
-		return false;
-
-	// Destination rect
-	SDL_Rect DestRect;
-
-	DestRect.x = x;
-	DestRect.y = y;
-
-	// Draw
-	SDL_BlitSurface(Src, NULL, Dest, &DestRect);
-
-	return true;
-};
-
-// Blit part of a surface to another surface
-bool Game::Draw(SDL_Surface* Dest, SDL_Surface* Src,
-		int x1, int y1, int x2, int y2, int w, int h)
-{
-	if (!Dest || !Src)
-		return false;
-
-	// Destination rect
-	SDL_Rect DestRect;
-
-	DestRect.x = x1;
-	DestRect.y = y1;
-
-	// Source rect
-	SDL_Rect SrcRect;
-
-	SrcRect.x = x2;
-	SrcRect.y = y2;
-	SrcRect.w = w;
-	SrcRect.h = h;
-
-	// Draw
-	SDL_BlitSurface(Src, &SrcRect, Dest, &DestRect);
-
-	return true;
-};
-
-// Draw a rect on the screen; standard functional doesn't allow alpha blending
-bool Game::DrawRect(SDL_Surface* Dest, int x, int y, int w, int h,
-		int r, int g, int b, int a)
-{
-	if (!Dest)
-		return false;
-	SDL_Surface *tempSurf;	// Make a new surface
-	tempSurf = SDL_CreateRGBSurface(SDL_HWSURFACE, w, h, 32,
-			0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
-
-	if (!tempSurf)
-		return false;
-
-	// Fill the entire surface with the given color;
-	SDL_FillRect(tempSurf, NULL, SDL_MapRGBA(tempSurf->format, r, g, b, a));
-
-	// Blit the surface
-	Draw(Dest, tempSurf, x, y);	
-
-	// Free the surface
-	SDL_FreeSurface(tempSurf);
-
-	return true;
-};
 
 
 //////////////////////////////// Events ////////////////////////////////////
@@ -252,7 +165,7 @@ void Game::OnKeyDown(SDLKey sym)
 	switch (sym)
 	{
 		case SDLK_SPACE:
-			DrawRect(Display,
+			Surface::DrawRect(Display,
 				Mouse.x-25, Mouse.y-25, 50, 50,
 				255, 255, 0, 64);
 			break;
@@ -267,19 +180,19 @@ void Game::OnKeyDown(SDLKey sym)
 // Process left click
 void Game::OnLClick(int x, int y)
 {
-	Draw(Display, SpriteSheet, x - 25, y - 25, 0, 0, 50, 50);
+	currentLevel->Grid[y/50][x/50].OnClick();
 };
 
 // Process right click
 void Game::OnRClick(int x, int y)
 {
-	Draw(Display, SpriteSheet, x - 25, y - 25, 50, 0, 50, 50);
+	Surface::Draw(Display, SpriteSheet, x - 25, y - 25, 50, 0, 50, 50);
 };
 
 // Process middle click
 void Game::OnMClick(int x, int y)
 {
-	Draw(Display, SpriteSheet, x - 25, y - 25, 100, 0, 50, 50);
+	Surface::Draw(Display, SpriteSheet, x - 25, y - 25, 100, 0, 50, 50);
 };
 
 // Trigger on mouse movement
@@ -288,4 +201,27 @@ void Game::OnMouseMove(int x, int y)
 	// Store the new mouse position
 	Mouse.x = x;
 	Mouse.y = y;
+
+	if (Hovered)
+	{
+		if (	(Mouse.x < Hovered->Rect.x) || 
+			(Mouse.x > Hovered->Rect.x + Hovered->Rect.w) ||
+			(Mouse.y < Hovered->Rect.y) ||
+			(Mouse.y > Hovered->Rect.y + Hovered->Rect.h)	)
+		{
+			Hovered->OnUnHover();
+		}
+	}
+	unsigned int i = Mouse.x/50;
+	unsigned int j = Mouse.y/50;
+
+	if (i < currentLevel->Grid[0].size() && j < currentLevel->Grid.size())
+	{
+		Hovered = &(currentLevel->Grid[y/50][x/50]);
+		Hovered->OnHover();
+	}
+	else
+	{
+		Hovered = NULL;
+	}
 };
