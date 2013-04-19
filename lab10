@@ -1,0 +1,527 @@
+#include "SDL/SDL_image.h"
+#include "SDL/SDL.h"
+#include <string>
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <cmath>
+using namespace std;
+
+//screen sizes
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 600;
+const int SCREEN_BPP = 32;
+
+//different sprites to be used
+SDL_Surface *turret = NULL;
+SDL_Surface *enemy = NULL;
+SDL_Surface *background = NULL;
+SDL_Surface *screen = NULL;
+SDL_Surface *square = NULL;
+SDL_Surface *wrongsquare = NULL;
+SDL_Surface *bullet = NULL;
+SDL_Surface *explode = NULL;
+SDL_Surface *wrecked = NULL;
+
+//data structure that stores "path" of enemies
+vector< vector<int> > path;
+
+//event structure
+SDL_Event event;
+
+//class for Enemy objects
+class Enemy
+{
+  public:
+		Enemy();
+		Enemy(int,int);
+		int getX();
+		int getY();
+		void move();
+		void show();
+		void hit();
+		bool isDone();
+
+	private:
+		int xPos,yPos,xVel,yVel,health,done;
+};
+
+//class for Turret objects
+class Turret
+{
+	public:
+		Turret();
+		Turret(int,int);
+		int getCenterX();
+		int getCenterY();
+		void show();
+
+	private:
+		int x;
+		int y;
+};
+
+//class for Bullet objects
+class Bullet
+{
+	public:
+		Bullet(Turret,Enemy);
+		void move();
+		void show();
+		bool isDone();
+	
+	private:
+		Turret t;
+		Enemy e;
+		int startX, startY, targetX, targetY,done;
+		double xVel, yVel, distance,speed;
+};		
+
+Turret::Turret()
+{
+}
+
+Turret::Turret(int xPos, int yPos)
+{
+	x = xPos;
+	y = yPos;
+}
+
+int Turret::getCenterX()
+{
+	return x+50;
+}
+
+int Turret::getCenterY()
+{
+	return y+50;
+}
+
+//apply surface to screen
+void apply_surface(int x, int y, SDL_Surface* source, SDL_Surface* destination)
+{
+	SDL_Rect offset;
+
+	offset.x = x;
+	offset.y = y;
+
+	SDL_BlitSurface(source, NULL,destination, &offset);
+}
+
+SDL_Surface *load_image( std::string filename )
+{
+	SDL_Surface* loadedImage = NULL;
+
+	SDL_Surface* optimizedImage = NULL;
+
+	loadedImage = IMG_Load( filename.c_str() );
+
+	if(loadedImage != NULL)
+	{
+		optimizedImage = SDL_DisplayFormat( loadedImage );
+		SDL_FreeSurface( loadedImage );
+		
+		if(optimizedImage != NULL)
+		{
+			Uint32 colorkey = SDL_MapRGB( optimizedImage->format,255,255,255 );
+			SDL_SetColorKey( optimizedImage, SDL_SRCCOLORKEY, colorkey );
+		}
+
+		return optimizedImage;
+	}
+}
+
+//initialization function
+bool init()
+{
+	if(SDL_Init(SDL_INIT_EVERYTHING) == -1)
+	{
+		return false;
+	}
+
+	screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_SWSURFACE);
+	
+	if(screen==NULL)
+	{
+		return false;
+	}
+
+	return true;      //return true if everything is properly initialized
+}
+
+//function for loading images
+bool load_files()
+{
+	enemy = load_image("enemy1.bmp");
+	turret = load_image("turret1.bmp");
+	background = load_image("background.bmp");
+	square = load_image("square.bmp");
+	wrongsquare = load_image("wrongsquare.bmp");
+	bullet = load_image("Bullet.bmp");
+	explode = load_image("explosion.bmp");
+	wrecked = load_image("destroy.bmp");
+	SDL_SetAlpha(wrongsquare,SDL_SRCALPHA,100);
+	SDL_SetAlpha(square,SDL_SRCALPHA,100);
+
+	if(background==NULL || enemy==NULL || turret==NULL || square==NULL)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void load_text(const char *filename)
+{
+	vector<int> single_row;     //a single row of numbers
+	string line;
+	int num;
+	ifstream pathfile(filename);
+	if(pathfile.is_open())
+	{
+		while(pathfile.good())
+		{
+			getline(pathfile,line);
+			stringstream lineStream(line);
+			while(lineStream >> num)
+			{
+				//put line of numbers into a single row
+				single_row.push_back(num);
+			}
+			//put entire line in complete board
+			path.push_back(single_row);
+			single_row.clear();
+		}
+		pathfile.close();
+	}
+}	
+
+//clean up for end of program
+void clean_up()
+{
+	SDL_FreeSurface(turret);
+	SDL_FreeSurface(enemy);
+	SDL_FreeSurface(background);
+	SDL_FreeSurface(square);
+
+	SDL_Quit();
+}
+
+//two enemy constructors
+Enemy::Enemy()
+{
+	//initial starting position and velocities
+	xPos=140;
+	yPos=-20;
+	xVel=0;
+	yVel=1;
+	health=5;
+	done = 0;
+}
+
+Enemy::Enemy(int x1, int y1)
+{
+	//initial starting position and velocities
+	xPos=x1;
+	yPos=y1;
+	xVel=0;
+	yVel=1;
+	health=5;
+	done = 0;
+}
+
+bool Enemy::isDone()
+{
+	if(done) return true;
+	return false;
+}
+
+void Enemy::hit()
+{
+	health--;
+}
+
+int Enemy::getX()
+{
+	return xPos;
+}
+
+int Enemy::getY()
+{
+	return yPos;
+}
+
+//move enemies
+void Enemy::move()
+{
+	xPos+=xVel;
+	yPos+=yVel;
+	if(xPos==140 && yPos==440)
+	{
+		//corners for the road, where the enemy turns
+		xVel=1;
+		yVel=0;
+	}
+	if(xPos==640 && yPos==440)
+	{
+		xVel=0;
+		yVel=-1;
+	}
+	if(xPos==640 && yPos==140)
+	{
+		xVel=-1;
+		yVel=0;
+	}
+	if(xPos==340 && yPos==140)
+	{
+		xVel=0;
+		yVel=1;
+	}
+	if(xPos==340 && yPos==240)
+	{
+		done = 1;
+	}
+}
+
+void Enemy::show()
+{
+	if(health <= 0) apply_surface(xPos-20,yPos-20,wrecked,screen);
+	else if(!done) apply_surface(xPos-20,yPos-20,enemy,screen);
+	
+}
+
+void Turret::show()
+{
+	apply_surface(x,y,turret,screen);
+}
+
+Bullet::Bullet(Turret t1, Enemy e1)
+{
+	t = t1;
+	e = e1;
+	startX = t.getCenterX();
+	startY = t.getCenterY();
+	targetX = e.getX();
+	targetY = e.getY();
+	speed = 10;
+	done = 0;
+	
+	//calculate velocities;
+	double x_Dist = targetX-startX;
+	double y_Dist = targetY-startY;
+
+	distance = sqrt(x_Dist*x_Dist + y_Dist*y_Dist);
+
+	double angle = atan(y_Dist/x_Dist);
+	
+	if(targetX>=startX)
+	{
+		xVel = speed*cos(angle);
+		yVel = speed*sin(angle);
+	}
+	else
+	{
+		xVel = -1*speed*cos(angle);
+		yVel = -1*speed*sin(angle);
+	}
+}
+
+void Bullet::move()
+{
+	startX+=xVel;
+	startY+=yVel;
+	distance-=speed;
+}
+
+void Bullet::show()
+{
+	if(distance>0) apply_surface(startX, startY, bullet, screen);
+	else if(distance == 0) e.hit();
+	else if(distance>-50) apply_surface(targetX,targetY,explode,screen);
+	else done = 1;
+
+}
+
+bool Bullet::isDone()
+{
+	if(done) return true;
+	return false;
+}
+
+int main(int argx, char* args[])
+{
+	bool quit = false;     //boolean variable for while loop
+	int x=0;
+	int y=0;               //x and y store mouse locations
+
+	//show which cell mouse is currently in
+	int mouse_x=0;
+	int mouse_y=0;
+	
+	//these vectors store class objects
+	vector<Turret> towers;
+	vector<Bullet> shoot;
+	vector<Enemy> tanks;		
+
+	//load level layout from pathfile
+	load_text("lvl0.txt");
+
+	//clock for game
+	int clock = 0;
+
+	if(init() == false)
+	{
+		return 1;
+	}
+
+	if(load_files() == false)
+	{
+		return 1;
+	}
+
+	//apply background surface to screen
+	apply_surface(0,0,background,screen);
+
+	while(quit==false)
+	{
+		clock++;
+		if(clock == 100000) clock = 0;
+
+		//draw objects on screen
+		apply_surface(0,0,background,screen);	
+		
+		//draw turrets
+		for(int i = 0; i < towers.size(); i++)
+		{
+			towers[i].show();
+			if(clock%50==0)
+			{
+				//determine closest enemy
+
+				double dist = 300;     //this serves as "range" of tower for now
+				Enemy closest;
+				for(int y = 0; y < tanks.size(); y++)
+				{
+					double dist2 = sqrt(pow(towers[i].getCenterX()-tanks[y].getX(),2)+pow(towers[i].getCenterY()-tanks[y].getY(),2));
+					if(dist2 < dist)  
+					{
+						closest = tanks[y];
+						dist = dist2;
+					}
+				} 
+				
+				if(dist<300) shoot.push_back(Bullet(towers[i],closest));
+			}
+		}
+		
+		//draw bullets
+		for(int j = 0; j < shoot.size(); j++)
+		{
+			shoot[j].move();
+			shoot[j].show();
+		}
+
+		if(clock%200==0)
+		{	
+			tanks.push_back(Enemy());
+		}
+
+		//draw enemies
+		for(int k = 0; k < tanks.size(); k++)
+		{
+			tanks[k].move();
+			tanks[k].show();
+		}
+
+		//erase done objects
+		for(int k = 0; k < tanks.size(); k++)
+		{
+			if(tanks[k].isDone()) tanks.erase(tanks.begin()+k);
+		}
+		
+		for(int j = 0; j < shoot.size(); j++)
+		{
+			if(shoot[j].isDone()) shoot.erase(shoot.begin()+j);
+		}
+
+
+		//draw hovering square to show which cell mouse is in
+		if(path[mouse_y/100][mouse_x/100] == 0)	apply_surface(mouse_x,mouse_y,square,screen);
+		//if on path, show red square instead
+		else	apply_surface(mouse_x,mouse_y,wrongsquare,screen);		
+		
+		while(SDL_PollEvent(&event))
+		{
+			//whenever cursor is moved
+			if(event.type == SDL_MOUSEMOTION)
+			{
+				x = event.motion.x;
+				y = event.motion.y;
+
+				//draw square on cell in which cursor is hovering
+				for(int i = 0; i <= 700; i+=100)
+				{
+					for(int j = 0; j <= 500; j+=100)
+					{
+						if(x>i && x<i+100 && y>j && y<j+100)
+						{
+							//set variables to reflect current cell
+							mouse_x = i;
+							mouse_y = j;
+						}
+					}
+				}
+			}				
+
+			//if left mouse button is pressed
+			if(event.button.button == SDL_BUTTON_LEFT)
+			{
+				
+				//get coordinates
+				x=event.button.x;
+				y=event.button.y;
+				
+				//draw turret in center of cell that was clicked on
+				for(int i = 0; i <= 7; i+=1)
+				{
+					for(int j = 0; j <= 5; j+=1)
+					{
+						if(x>i*100 && x<i*100+100 && y>j*100 && y<j*100+100)
+						{
+							if(!path[j][i])
+							{ 
+								int alreadythere = 0;
+								for(int x = 0; x < towers.size() ; x++)
+								{
+									if(towers[i].getCenterX()-50 == i*100 && towers[i].getCenterY()-50 == j*100)
+										alreadythere = 1;
+								}
+								if(!alreadythere) towers.push_back(Turret(i*100,j*100));					
+							}
+						}
+					}
+				}
+
+			}
+			
+			//quit program event
+			if(event.type == SDL_QUIT)
+			{
+				quit = true;
+			}
+		}
+
+		//Update
+		if(SDL_Flip(screen) == -1)
+		{
+			return 1;
+		}
+
+	}
+
+	clean_up();
+
+	return 0;
+}
+
