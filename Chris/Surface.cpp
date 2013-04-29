@@ -3,6 +3,9 @@
 
 #include "Surface.h"
 
+SDL_Surface* Surface::Display = NULL;
+SDL_Surface* Surface::SpriteSheet = NULL;
+
 // Utility to load and format a BMP image
 SDL_Surface* Surface::LoadImage(char* filename)
 {
@@ -87,5 +90,15 @@ bool Surface::DrawRect(SDL_Surface* Dest, int x, int y, int w, int h,
 	// Free the surface
 	SDL_FreeSurface(tempSurf);
 
+	return true;
+};
+
+bool Surface::DrawSprite(int tileX, int tileY, int x, int y)
+{
+	if (!Display || !SpriteSheet) return false;
+
+	Draw(Display, SpriteSheet, x, y,
+			tileX*TILESIZE, tileY*TILESIZE,
+			TILESIZE, TILESIZE);
 	return true;
 };

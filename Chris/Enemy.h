@@ -5,9 +5,19 @@
 
 class Enemy {
 	public:
-		int x;
-		int y;
+		Enemy(int i);
+		void Render();
+		bool damage(double damage);
+
 		double health;
+		double maxHealth;
+		int value;
+		int type;
+
+		double x;
+		double y;
+		int pathSegment;
+		double v;	// Velocity, px/sec
 	private:
 };
 

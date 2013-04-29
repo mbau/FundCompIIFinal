@@ -10,30 +10,33 @@
 class Game {
 	public:
 		Game();
-		bool Init();
 		int Run();
+	private:
+		// Main game functions
+		bool Init();
 		void OnEvent(SDL_Event* Event);
 		void Update();
 		void Render();
 		void Cleanup();
-	private:
+		void Wait();
+
 		int windowWidth;
 		int windowHeight;
 		struct {int x, y;} Mouse;
 
 		bool Running;
 
-		SDL_Surface* Display;
-		SDL_Surface* SpriteSheet;
 		Level *currentLevel;
 
-		Entity *Clicked, *Hovered;
+		bool menuOn;
+		struct {int x, y;} menu;
 
 		// Events
 		void OnQuit();
 		void OnKeyDown(SDLKey sym);
 		void OnLClick(int x, int y);
 		void OnRClick(int x, int y);
+		void OnRClickRelease(int x, int y);
 		void OnMClick(int x, int y);
 		void OnMouseMove(int x, int y);
 };

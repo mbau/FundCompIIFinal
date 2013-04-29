@@ -4,10 +4,15 @@
 #ifndef SURFACE_H
 #define SURFACE_H
 
+const int TILESIZE = 50;
+
 #include <SDL/SDL.h>
+#include <SDL/SDL_gfxPrimitives.h>
 
 class Surface {
 	public:
+		static SDL_Surface* Display;
+		static SDL_Surface* SpriteSheet;
 		static SDL_Surface* LoadImage(char* filename);
 		static bool Draw(SDL_Surface* Dest, SDL_Surface* Src,
 				int x, int y);
@@ -16,6 +21,7 @@ class Surface {
 		static bool DrawRect(SDL_Surface* Dest,
 				int x, int y, int w, int h,
 				int r, int g, int b, int a);
+		static bool DrawSprite(int tileX, int tileY, int x, int y);
 };
 
 #endif	// SURFACE_H
