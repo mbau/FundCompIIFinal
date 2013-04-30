@@ -4,8 +4,10 @@
 #ifndef SURFACE_H
 #define SURFACE_H
 
-const int TILESIZE = 100;
+const int TILESIZE = 50;
 const int ICONSIZE = 50;
+
+enum ICONINDEX {NORMAL, SLOW, RANGE, DAMAGE, FREEZE, RATE, SELL};
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_gfxPrimitives.h>

@@ -4,6 +4,8 @@
 #include "Game.h"
 #include "Surface.h"	// Graphics utilities
 #include <math.h>
+#include <iostream>
+using namespace std;
 
 const double FRAMETIME = 1./60.;
 
@@ -52,14 +54,14 @@ bool Game::Init()
 	if (!Surface::SpriteSheet)
 		return false;
 
-	Surface::IconSheet = Surface::LoadImage("resources/icon_sprite.bmp");
+	Surface::IconSheet = Surface::LoadImage("resources/icons.bmp");
 
 	if (!Surface::IconSheet)
 		return false;
 
 	// Set sprite transparency to RGB(255, 0, 255) AKA magenta
 	SDL_SetColorKey(Surface::SpriteSheet, SDL_SRCCOLORKEY | SDL_RLEACCEL,
-			SDL_MapRGB(Surface::SpriteSheet->format, 255, 0, 255));
+			SDL_MapRGB(Surface::SpriteSheet->format, 255, 255, 255));
 
 	SDL_SetColorKey(Surface::IconSheet, SDL_SRCCOLORKEY | SDL_RLEACCEL,
 			SDL_MapRGB(Surface::IconSheet->format, 255, 0, 255));
@@ -204,19 +206,53 @@ void Game::drawMenu()
 		}
 
 		filledCircleRGBA(Surface::Display,menu.x, menu.y, rad, 255, 255, 255, 64);
-
-		// Draw Icons
-		if (menu.target)
-		{
-			Surface::Draw(Surface::Display, Surface::IconSheet,
-				menu.x- Surface::Padding, menu.y - Surface::Padding,
-				0, 0, ICONSIZE, ICONSIZE);
-		}
 		
 		// Highlight
 		if (state != 0)
-			filledPieRGBA(Surface::Display, menu.x, menu.y, rad, theta1, theta2,
-						255, 255, 0, 128);
+			filledPieRGBA(Surface::Display, menu.x, menu.y,
+					rad, theta1, theta2, 255, 255, 0, 128);
+
+		// Draw Icons
+		double offset = 3*rad/4;
+		int x, y, icon[4];
+		x = menu.x - Surface::Padding - ICONSIZE/2;
+		y = menu.y - Surface::Padding - ICONSIZE/2;
+
+		if (menu.target)
+		{
+			switch (menu.target->type)
+			{
+				case 0:
+					icon[0] = DAMAGE;	// Top
+					break;
+				case 1:
+					icon[0] = FREEZE;
+					break;
+				default:
+					icon[0] = DAMAGE;
+					break;
+			}
+
+			icon[1] = RANGE;	// Right
+			icon[2] = SELL; 	// Bottom
+			icon[3] = RATE;		// Left
+		}
+		else
+		{
+			icon[0] = NORMAL;
+			icon[1] = SLOW;
+			icon[2] = -1;
+			icon[3] = -1;
+		}
+		for (int i = 0; i < 4; i++)
+		{
+			double angle = (i-1)*M_PI/2;
+			Surface::Draw(Surface::Display, Surface::IconSheet,
+				x + offset*cos(angle),
+				y + offset*sin(angle),
+				icon[i]*ICONSIZE, 0,
+				ICONSIZE, ICONSIZE);
+		}
 	}
 };
 
@@ -318,6 +354,10 @@ void Game::OnRClickRelease(int x, int y)
 					currentLevel->MouseGrid.y,
 				       	0);
 				break;
+			case 2:currentLevel->BuildTower(
+					currentLevel->MouseGrid.x,
+					currentLevel->MouseGrid.y,
+				       	1);
 		};
 	}
 
