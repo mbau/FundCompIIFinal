@@ -6,11 +6,12 @@
 
 class Bullet {
 	public:
-		Bullet(int x1, int y1, int x2, int y2);
+		Bullet(int x1, int y1, int x2, int y2, int bulletType);
 		void Render();
 		void Update(double dt);
 
 		int startX, startY, endX, endY;
+		int type;
 
 		double timeMax;
 		double timeLeft;

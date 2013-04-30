@@ -64,7 +64,7 @@ bool Game::Init()
 			SDL_MapRGB(Surface::SpriteSheet->format, 255, 255, 255));
 
 	SDL_SetColorKey(Surface::IconSheet, SDL_SRCCOLORKEY | SDL_RLEACCEL,
-			SDL_MapRGB(Surface::IconSheet->format, 255, 0, 255));
+			SDL_MapRGB(Surface::IconSheet->format, 255, 255, 255));
 
 
 	return true;
@@ -214,7 +214,7 @@ void Game::drawMenu()
 
 		// Draw Icons
 		double offset = 3*rad/4;
-		int x, y, icon[4];
+		int x, y, icon[4] = {-1, -1, -1, -1};
 		x = menu.x - Surface::Padding - ICONSIZE/2;
 		y = menu.y - Surface::Padding - ICONSIZE/2;
 
@@ -237,7 +237,8 @@ void Game::drawMenu()
 			icon[2] = SELL; 	// Bottom
 			icon[3] = RATE;		// Left
 		}
-		else
+		else if (currentLevel->isValid(currentLevel->MouseGrid.x,
+						currentLevel->MouseGrid.y))
 		{
 			icon[0] = NORMAL;
 			icon[1] = SLOW;
@@ -339,13 +340,18 @@ void Game::OnRClickRelease(int x, int y)
 			case 2:	// Range
 				currentLevel->UpgradeTower(menu.target, 1);
 				break;
-			case 3: // Rate
+			case 3: // Sell
+				currentLevel->DestroyTower(menu.target);
+				break;
+			case 4:	// Rate
 				currentLevel->UpgradeTower(menu.target, 2);
 				break;
 		};
 	}
 	else	// Not a tower
 	{
+		if (currentLevel->isValid(currentLevel->MouseGrid.x,
+					currentLevel->MouseGrid.y))
 		switch (getMenuState())
 		{
 			case 1:

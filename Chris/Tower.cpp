@@ -109,10 +109,19 @@ bool Tower::Fire(Enemy &enemy,	vector <Bullet> &Shots)
 			int bulletX = towerX - TILESIZE*cos(angle)/2;
 			int bulletY = towerY - TILESIZE*sin(angle)/2;
 			Shots.push_back(Bullet(bulletX, bulletY,
-						enemyX, enemyY));
-			if (enemy.damage(power))
+						enemyX, enemyY, type));
+			switch (type)
 			{
-				return true;
+				default:
+				case 0:
+					if (enemy.damage(power))
+					{
+						return true;
+					}
+					break;
+				case 1:
+					enemy.slow(power);
+					break;
 			}
 		}
 	}
