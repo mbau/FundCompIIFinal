@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <math.h>
 #include "Surface.h"
 
 using namespace std;
@@ -42,6 +43,17 @@ bool Level::Init(char *filename)
 			temp.push_back(GridValue);
 		}
 		Grid.push_back(temp);
+	}
+
+	// Read in enemy path
+	while (true)
+	{
+		int temp;
+		File >> temp;
+		if (File.eof()) break;
+		pathX.push_back(temp*TILESIZE);
+		File >> temp;
+		pathY.push_back(temp*TILESIZE);
 	}
 
 	File.close();
@@ -197,8 +209,8 @@ void Level::spawnEnemies(double dt)
 	while (enemyWait < 0)
 	{
 		Enemy temp(enemyCount++);
-		temp.x = 100;
-		temp.y = -TILESIZE;
+		temp.x = pathX[0];
+		temp.y = pathY[0];
 		Enemies.push_back(temp);
 
 		enemyWait += 1/enemyRate;
@@ -209,14 +221,32 @@ void Level::moveEnemies(double dt)
 {
 	for (unsigned int i = 0; i < Enemies.size(); i++)
 	{
-		Enemies[i].y += Enemies[i].v*dt;
-		
-		if (Enemies[i].y > Grid.size()*TILESIZE)
+		int dx = pathX[Enemies[i].pathSegment+1] - Enemies[i].x;
+		int dy = pathY[Enemies[i].pathSegment+1] - Enemies[i].y;
+		double movement = Enemies[i].v * dt;
+		if (dx*dx + dy*dy <= movement*movement)
 		{
-			Enemies[i].y = -TILESIZE;
-			--Player.lives;
+			if ((++Enemies[i].pathSegment) >= pathX.size()-1)
+			{
+				Enemies[i].pathSegment = 0;
+				--Player.lives;
+			}
+
+			Enemies[i].x = pathX[Enemies[i].pathSegment];
+			Enemies[i].y = pathY[Enemies[i].pathSegment];
 		}
-	};
+		else
+		{
+			if (dx > 0)
+				Enemies[i].x += movement;
+			else if (dx < 0)
+				Enemies[i].x -= movement;
+			else if (dy > 0)
+				Enemies[i].y += movement;
+			else if (dy < 0)
+				Enemies[i].y -= movement;
+		}
+	}
 };
 
 void Level::updateTowers(double dt)

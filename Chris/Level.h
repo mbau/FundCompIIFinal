@@ -35,6 +35,8 @@ class Level {
 		vector<Enemy> Enemies;
 		vector<Bullet> Shots;
 		vector< vector <int> > Grid; // Grid-based level layout
+		vector <int> pathX;
+		vector <int> pathY;
 		struct {int x, y;} MouseGrid;
 
 		struct {int score, money, lives;} Player;

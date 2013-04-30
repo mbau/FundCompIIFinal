@@ -135,7 +135,6 @@ void Game::Render()
 
 	currentLevel->Render();
 
-	/*
 	if (menuOn) {
 	double diffX = Mouse.x - menu.x;
 	double diffY = Mouse.y - menu.y;
@@ -178,7 +177,6 @@ void Game::Render()
 		filledCircleRGBA(Surface::Display, menu.x, menu.y, 100, 255,255,255,64);
 	}
 	}
-*/
 	// Draw the display to screen (double buffer)
 	SDL_Flip(Surface::Display);
 };
@@ -253,30 +251,6 @@ void Game::OnMouseMove(int x, int y)
 	
 	currentLevel->MouseGrid.x = Mouse.x / TILESIZE;
 	currentLevel->MouseGrid.y = Mouse.y / TILESIZE;
-	/*
-	if (Hovered)
-	{
-		if (	(Mouse.x < Hovered->Rect.x) || 
-			(Mouse.x >= Hovered->Rect.x + Hovered->Rect.w) ||
-			(Mouse.y < Hovered->Rect.y) ||
-			(Mouse.y >= Hovered->Rect.y + Hovered->Rect.h)	)
-		{
-			Hovered->OnUnHover();
-		}
-	}
-	unsigned int i = Mouse.x/50;
-	unsigned int j = Mouse.y/50;
-
-	if (i < currentLevel->Grid[0].size() && j < currentLevel->Grid.size())
-	{
-		Hovered = &(currentLevel->Grid[y/50][x/50]);
-		Hovered->OnHover();
-	}
-	else
-	{
-		Hovered = NULL;
-	}
-	*/
 };
 
 // Waits for the next frame; based on libsdl.org/intro.en/usingtimers.html
