@@ -5,6 +5,7 @@
 
 SDL_Surface* Surface::Display = NULL;
 SDL_Surface* Surface::SpriteSheet = NULL;
+SDL_Surface* Surface::IconSheet = NULL;
 int Surface::Padding = 50;
 
 // Utility to load and format a BMP image
@@ -86,7 +87,7 @@ bool Surface::DrawRect(SDL_Surface* Dest, int x, int y, int w, int h,
 	SDL_FillRect(tempSurf, NULL, SDL_MapRGBA(tempSurf->format, r, g, b, a));
 
 	// Blit the surface
-	Draw(Dest, tempSurf, x, y);	
+	Draw(Dest, tempSurf, x, y);
 
 	// Free the surface
 	SDL_FreeSurface(tempSurf);

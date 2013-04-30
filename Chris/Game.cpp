@@ -40,6 +40,9 @@ bool Game::Init()
 	// Init the display surface
 	Surface::Display = SDL_SetVideoMode(windowWidth, windowHeight, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
 
+	SDL_WM_SetCaption("Save the Fort",NULL);
+//	SDL_WM_SetIcon(icon,NULL);
+
 	if (!Surface::Display)
 		return false;
 
@@ -49,9 +52,17 @@ bool Game::Init()
 	if (!Surface::SpriteSheet)
 		return false;
 
+	Surface::IconSheet = Surface::LoadImage("resources/icon_sprite.bmp");
+
+	if (!Surface::IconSheet)
+		return false;
+
 	// Set sprite transparency to RGB(255, 0, 255) AKA magenta
 	SDL_SetColorKey(Surface::SpriteSheet, SDL_SRCCOLORKEY | SDL_RLEACCEL,
 			SDL_MapRGB(Surface::SpriteSheet->format, 255, 0, 255));
+
+	SDL_SetColorKey(Surface::IconSheet, SDL_SRCCOLORKEY | SDL_RLEACCEL,
+			SDL_MapRGB(Surface::IconSheet->format, 255, 0, 255));
 
 
 	return true;
@@ -166,35 +177,46 @@ void Game::drawMenu()
 	if (menu.On)
 	{
 		int state = getMenuState();
+		double theta1, theta2, rad;
+		theta1 = theta2 = 0;
+		rad = 100;
 		switch (state)
 		{
 			case 1:
-				filledPieRGBA(Surface::Display, menu.x, menu.y,
-						100, 225, 315,
-						255, 255, 0, 128);
+				theta1 = 225;
+				theta2 = 315;
 				break;
 			case 2:
-				filledPieRGBA(Surface::Display, menu.x, menu.y,
-						100, -45, 45,
-						255, 0, 0, 128);
+				theta1 = -45;
+				theta2 = 45;
 				break;
 			case 3:
-				filledPieRGBA(Surface::Display, menu.x, menu.y,
-						100, 45, 135,
-						0, 255, 0, 128);
+				theta1 = 45;
+				theta2 = 135;
 				break;
 			case 4:
-				filledPieRGBA(Surface::Display, menu.x, menu.y,
-						100, 135, 225,
-						0, 0, 255, 128);
+				theta1 = 135;
+				theta2 = 225;
 				break;
 			case 0:
 			default:
-				filledCircleRGBA(Surface::Display,
-						menu.x, menu.y,
-						100, 255,255,255,64);
 				break;
 		}
+
+		filledCircleRGBA(Surface::Display,menu.x, menu.y, rad, 255, 255, 255, 64);
+
+		// Draw Icons
+		if (menu.target)
+		{
+			Surface::Draw(Surface::Display, Surface::IconSheet,
+				menu.x- Surface::Padding, menu.y - Surface::Padding,
+				0, 0, ICONSIZE, ICONSIZE);
+		}
+		
+		// Highlight
+		if (state != 0)
+			filledPieRGBA(Surface::Display, menu.x, menu.y, rad, theta1, theta2,
+						255, 255, 0, 128);
 	}
 };
 

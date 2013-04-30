@@ -5,6 +5,7 @@
 #define SURFACE_H
 
 const int TILESIZE = 100;
+const int ICONSIZE = 50;
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_gfxPrimitives.h>
@@ -13,6 +14,7 @@ class Surface {
 	public:
 		static SDL_Surface* Display;
 		static SDL_Surface* SpriteSheet;
+		static SDL_Surface* IconSheet;
 		static int Padding;
 
 		static SDL_Surface* LoadImage(char* filename);
