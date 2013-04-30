@@ -30,7 +30,7 @@ bool Game::Init()
 
 	// Create a new level
 	currentLevel = new Level();
-	if (!currentLevel->Init("resources/lvl0.txt"))
+	if (!currentLevel->Init("resources/lvl1.txt"))
 		return false;
 
 	Surface::Padding = TILESIZE;
