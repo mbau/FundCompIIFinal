@@ -19,7 +19,12 @@ void Tower::SetType(int newType)
 	switch (type)
 	{
 		default:
+		case 0:
 			SetParams(2*TILESIZE, 1, 32);
+			break;
+		case 1:
+			SetParams(2*TILESIZE, .1, 32);
+			break;
 	};
 };
 
@@ -54,38 +59,63 @@ void Tower::Update(double dt)
 	if (reloadTime < 0) reloadTime = 0;
 };
 
-void Tower::Upgrade(int type)
+void Tower::Upgrade(int upgradeType)
 {
-	switch(type)
+	switch (type)
 	{
-		case 0:
-			power += 100;
+		default:
+		case 0:	// Normal
+			switch(upgradeType)
+			{
+				case 0:
+					power += 100;
+					break;
+				case 1:
+					range += TILESIZE;
+					break;
+				case 2:
+					rate *= 2;
+					break;
+			}
 			break;
-		case 1:
-			range += 100;
-			break;
-		case 2:
-			rate *= 2;
+		case 1:	// Slow
+			switch(upgradeType)
+			{
+				case 0:
+					power = 1-((1-power)*.75);
+					break;
+				case 1:
+					range += TILESIZE;
+					break;
+				case 2:
+					rate *= 2;
+					break;
+			}
 			break;
 	}
 };
 
-int Tower::UpgradeCost(int type)
+int Tower::UpgradeCost(int upgradeType)
 {
+	int costs[3] = {0, 0, 0};
 	switch (type)
 	{
-		case 0:	// power
-			return 100;
+		default:
+		case 0:	// Normal
+			costs[0] = 100;	// power
+			costs[1] = 100;	// range
+			costs[2] = 100;	// rate
 			break;
-		case 1:	// range
-			return 100;
-			break;
-		case 2:	// rate
-			return 100;
+		case 1:	// Slow
+			costs[0] = 100;	// power
+			costs[1] = 100;	// range
+			costs[2] = 100;	// rate
 			break;
 	}
 
-	return 0;
+	if (upgradeType < 3)
+		return costs[upgradeType];
+
 };
 
 // Attempt to fire at enemy; return true if destroyed
