@@ -13,6 +13,8 @@ class Surface {
 	public:
 		static SDL_Surface* Display;
 		static SDL_Surface* SpriteSheet;
+		static int Padding;
+
 		static SDL_Surface* LoadImage(char* filename);
 		static bool Draw(SDL_Surface* Dest, SDL_Surface* Src,
 				int x, int y);

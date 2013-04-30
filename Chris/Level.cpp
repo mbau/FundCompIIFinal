@@ -154,6 +154,22 @@ bool Level::BuildTower(int x, int y, int type)
 	}
 };
 
+// Attempts to upgrade a tower
+bool Level::UpgradeTower(Tower *tower, int upgradeType)
+{
+	int cost = tower->UpgradeCost(upgradeType);
+	if (cost <= Player.money)
+	{
+		Player.money -= cost;
+		tower->Upgrade(upgradeType);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+};
+
 // Returns a pointer to the tower at the position if it exists, otherwise NULL
 Tower* Level::isTower(int x, int y)
 {

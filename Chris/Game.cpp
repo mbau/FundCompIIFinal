@@ -3,6 +3,7 @@
 
 #include "Game.h"
 #include "Surface.h"	// Graphics utilities
+#include <math.h>
 
 const double FRAMETIME = 1./60.;
 
@@ -14,7 +15,7 @@ Game::Game()
 
 	Running = true;
 
-	menuOn = false;
+	menu.On = false;
 };
 
 // Game setup
@@ -30,8 +31,11 @@ bool Game::Init()
 	if (!currentLevel->Init("resources/lvl0.txt"))
 		return false;
 
-	windowWidth = TILESIZE * currentLevel->Grid[0].size();
-	windowHeight = TILESIZE * currentLevel->Grid.size();
+	Surface::Padding = TILESIZE;
+	windowWidth = TILESIZE * currentLevel->Grid[0].size()
+				+ Surface::Padding*2;
+	windowHeight = TILESIZE * currentLevel->Grid.size()
+				+ Surface::Padding*2;
 
 	// Init the display surface
 	Surface::Display = SDL_SetVideoMode(windowWidth, windowHeight, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
@@ -134,51 +138,83 @@ void Game::Render()
 //			255, 255, 255, 255);
 
 	currentLevel->Render();
+	drawMargins();
+	currentLevel->RenderHUD();
 
-	if (menuOn) {
-	double diffX = Mouse.x - menu.x;
-	double diffY = Mouse.y - menu.y;
-	if (diffX*diffX + diffY*diffY > 2500)
+	drawMenu();
+
+	// Draw the display to screen (double buffer)
+	SDL_Flip(Surface::Display);
+};
+
+void Game::drawMargins()
+{
+	SDL_Rect rect[4] = {
+	{0, 0, windowWidth, Surface::Padding},
+	{windowWidth-Surface::Padding, 0, Surface::Padding, windowHeight},
+	{0, 0, Surface::Padding, windowHeight},
+	{0, windowHeight-Surface::Padding,windowWidth, Surface::Padding}};
+	for (int i = 0; i < 4; i++)
 	{
-		if (diffY < diffX)	//right + top
+		SDL_FillRect(Surface::Display, &rect[i], SDL_MapRGB(
+				Surface::Display->format,128,128,128));
+	}
+};
+
+void Game::drawMenu()
+{
+	if (menu.On)
+	{
+		int state = getMenuState();
+		switch (state)
 		{
-			if (diffY < -diffX)	// top
-			{
+			case 1:
 				filledPieRGBA(Surface::Display, menu.x, menu.y,
 						100, 225, 315,
 						255, 255, 0, 128);
-			}
-			else	// right
-			{
+				break;
+			case 2:
 				filledPieRGBA(Surface::Display, menu.x, menu.y,
 						100, -45, 45,
 						255, 0, 0, 128);
-			}
-				
-		}
-		else			//left + bottom
-		{
-			if (diffY > -diffX)	// bottom
-			{
+				break;
+			case 3:
 				filledPieRGBA(Surface::Display, menu.x, menu.y,
 						100, 45, 135,
 						0, 255, 0, 128);
-			}
-			else	// left
-			{
+				break;
+			case 4:
 				filledPieRGBA(Surface::Display, menu.x, menu.y,
 						100, 135, 225,
 						0, 0, 255, 128);
-			}
+				break;
+			case 0:
+			default:
+				filledCircleRGBA(Surface::Display,
+						menu.x, menu.y,
+						100, 255,255,255,64);
+				break;
 		}
 	}
+};
+
+int Game::getMenuState()
+{	
+	int numState = 4;
+	int diffX = Mouse.x - menu.x;
+	int diffY = Mouse.y - menu.y;
+	if (diffX*diffX + diffY*diffY < 50*50)
+		return 0;	// Inactive selection
 	else
 	{
-		filledCircleRGBA(Surface::Display, menu.x, menu.y, 100, 255,255,255,64);
-	}
-	}
-	// Draw the display to screen (double buffer)
-	SDL_Flip(Surface::Display);
+		double angle = 180*atan2(diffY,diffX)/M_PI + 180;
+		int value = (angle/(360/numState))+.5;
+		if (value < 1)
+			value += 4;
+
+		return value;
+	};
+
 };
 
 // Cleanup before exiting, a bit like a deconstructor
@@ -226,20 +262,52 @@ void Game::OnLClick(int x, int y)
 // Process right click
 void Game::OnRClick(int x, int y)
 {
-	menuOn = true;
-	menu.x = x;
-	menu.y = y;
+	menu.On = true;
+	menu.x = (.5 + currentLevel->MouseGrid.x)*TILESIZE + Surface::Padding;
+	menu.y = (.5 + currentLevel->MouseGrid.y)*TILESIZE + Surface::Padding;
+	menu.target = currentLevel->isTower(currentLevel->MouseGrid.x,
+						currentLevel->MouseGrid.y);
 };
 
 void Game::OnRClickRelease(int x, int y)
 {
-	menuOn = false;
+	if (menu.target)	// Tower selected:
+	{
+		switch (getMenuState())
+		{
+			case 1:	// Power
+				currentLevel->UpgradeTower(menu.target, 0);
+				break;
+			case 2:	// Range
+				currentLevel->UpgradeTower(menu.target, 1);
+				break;
+			case 3: // Rate
+				currentLevel->UpgradeTower(menu.target, 2);
+				break;
+		};
+	}
+	else	// Not a tower
+	{
+		switch (getMenuState())
+		{
+			case 1:
+				currentLevel->BuildTower(
+					currentLevel->MouseGrid.x,
+					currentLevel->MouseGrid.y,
+				       	0);
+				break;
+		};
+	}
+
+	menu.On = false;
 };
 
 // Process middle click
 void Game::OnMClick(int x, int y)
 {
-	currentLevel->BuildTower(x/TILESIZE, y/TILESIZE, 0);
+	currentLevel->BuildTower(	currentLevel->MouseGrid.x,
+					currentLevel->MouseGrid.y,
+				       		0);
 };
 
 // Trigger on mouse movement
@@ -248,9 +316,13 @@ void Game::OnMouseMove(int x, int y)
 	// Store the new mouse position
 	Mouse.x = x;
 	Mouse.y = y;
-	
-	currentLevel->MouseGrid.x = Mouse.x / TILESIZE;
-	currentLevel->MouseGrid.y = Mouse.y / TILESIZE;
+	if (!menu.On)
+	{
+		currentLevel->MouseGrid.x = (Mouse.x-Surface::Padding)
+						/ TILESIZE;
+		currentLevel->MouseGrid.y = (Mouse.y-Surface::Padding)
+						/ TILESIZE;
+	}
 };
 
 // Waits for the next frame; based on libsdl.org/intro.en/usingtimers.html

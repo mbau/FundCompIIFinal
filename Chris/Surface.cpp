@@ -5,6 +5,7 @@
 
 SDL_Surface* Surface::Display = NULL;
 SDL_Surface* Surface::SpriteSheet = NULL;
+int Surface::Padding = 50;
 
 // Utility to load and format a BMP image
 SDL_Surface* Surface::LoadImage(char* filename)
@@ -32,8 +33,8 @@ bool Surface::Draw(SDL_Surface* Dest, SDL_Surface* Src, int x, int y)
 	// Destination rect
 	SDL_Rect DestRect;
 
-	DestRect.x = x;
-	DestRect.y = y;
+	DestRect.x = x + Padding;
+	DestRect.y = y + Padding;
 
 	// Draw
 	SDL_BlitSurface(Src, NULL, Dest, &DestRect);
@@ -51,8 +52,8 @@ bool Surface::Draw(SDL_Surface* Dest, SDL_Surface* Src,
 	// Destination rect
 	SDL_Rect DestRect;
 
-	DestRect.x = x1;
-	DestRect.y = y1;
+	DestRect.x = x1+Padding;
+	DestRect.y = y1+Padding;
 
 	// Source rect
 	SDL_Rect SrcRect;

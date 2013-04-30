@@ -11,6 +11,8 @@ class Tower {
 		void Render();
 		void DrawRange();
 		void Update(double dt);
+		void Upgrade(int type);
+		int UpgradeCost(int type);
 
 		// Grid coords
 		int gridX;

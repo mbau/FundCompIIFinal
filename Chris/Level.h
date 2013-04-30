@@ -26,6 +26,7 @@ class Level {
 		void RenderHUD();
 
 		bool BuildTower(int x, int y, int type);
+		bool UpgradeTower(Tower *tower, int upgradeType);
 		Tower* isTower(int x, int y);
 		bool isValid(int x, int y);
 

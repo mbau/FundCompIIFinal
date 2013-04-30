@@ -7,10 +7,10 @@
 
 Bullet::Bullet(int x1, int y1, int x2, int y2)
 {
-	startX = x1;
-	startY = y1;
-	endX = x2;
-	endY = y2;
+	startX = x1 + Surface::Padding;
+	startY = y1 + Surface::Padding;
+	endX = x2 + Surface::Padding;
+	endY = y2 + Surface::Padding;
 	timeLeft = timeMax = .5;
 };
 

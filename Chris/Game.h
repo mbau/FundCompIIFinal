@@ -6,6 +6,7 @@
 
 #include <SDL/SDL.h>
 #include "Level.h"
+#include "Tower.h"
 
 class Game {
 	public:
@@ -28,8 +29,15 @@ class Game {
 
 		Level *currentLevel;
 
-		bool menuOn;
-		struct {int x, y;} menu;
+		// Pie menu stuff
+		struct {
+			int x, y, numStates;
+			bool On;
+			Tower *target;} menu;
+		void drawMenu();
+		int getMenuState();
+
+		void drawMargins();
 
 		// Events
 		void OnQuit();

@@ -39,10 +39,11 @@ void Tower::DrawRange()
 	int g = 0;
 	int b = 0;
 
-	filledCircleRGBA(Surface::Display, (gridX + .5)*TILESIZE,
-			(gridY + .5)*TILESIZE, range, r, g, b, 64);
-	circleRGBA(Surface::Display, (gridX + .5)*TILESIZE,
-			(gridY + .5)*TILESIZE, range, r, g, b, 255);
+	int x = (gridX + .5)*TILESIZE + Surface::Padding;
+	int y = (gridY + .5)*TILESIZE + Surface::Padding;
+
+	filledCircleRGBA(Surface::Display, x, y, range, r, g, b, 64);
+	circleRGBA(Surface::Display, x, y, range, r, g, b, 255);
 };
 
 void Tower::Update(double dt)
@@ -51,37 +52,36 @@ void Tower::Update(double dt)
 	if (reloadTime < 0) reloadTime = 0;
 };
 
-/*
-#include <SDL/SDL_gfxPrimitives.h>
-#include <SDL/SDL.h>
-
-Tower::Tower(SDL_Surface *Dest, SDL_Rect &DestRect,
-		SDL_Surface *SrcSprite, SDL_Rect &SrcRect):
-	Entity(Dest, DestRect, SrcSprite, SrcRect)
+void Tower::Upgrade(int type)
 {
-	range = 0;
-	power = 0;
-	rate = 0;
-	lastShotTime = SDL_GetTicks();
-};
-
-void Tower::SetParams(double rng, double pow, double rt)
-{
-	range = rng;
-	power = pow;
-	rate = rt;
-};
-
-void Tower::Render()
-{
-	if (IsClicked)
+	switch(type)
 	{
-		filledCircleRGBA(Display, Rect.x+Rect.w/2, Rect.y+Rect.h/2,
-				range, 255, 0, 0, 128);
-		circleRGBA(Display, Rect.x+Rect.w/2, Rect.y+Rect.h/2, range,
-				255, 0, 0, 255);
+		case 0:
+			power += 100;
+			break;
+		case 1:
+			range += 100;
+			break;
+		case 2:
+			rate *= 2;
+			break;
+	}
+};
+
+int Tower::UpgradeCost(int type)
+{
+	switch (type)
+	{
+		case 0:	// power
+			return 100;
+			break;
+		case 1:	// range
+			return 100;
+			break;
+		case 2:	// rate
+			return 100;
+			break;
 	}
 
-	Entity::Render();
+	return 0;
 };
-*/
