@@ -3,20 +3,29 @@
 #ifndef TOWER_H
 #define TOWER_H
 
+#include "Enemy.h"
+#include "Bullet.h"
+
 class Tower {
 	public:
 		Tower(int x, int y, int type);
 		void SetParams(double rng, double pow, double rt);
 		void SetType(int type);
+
 		void Render();
 		void DrawRange();
+
 		void Update(double dt);
 		void Upgrade(int type);
 		int UpgradeCost(int type);
 
+		bool Fire(Enemy &enemy,	vector <Bullet> &Shots);
+
 		// Grid coords
 		int gridX;
 		int gridY;
+
+		int direction;
 
 		// Tower properties
 		int type;

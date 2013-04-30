@@ -194,8 +194,10 @@ bool Level::isValid(int x, int y)
 		case 1:
 			return false;
 			break;
+		case 2:
+			return false;
 		default:
-			return true;
+			return false;
 			break;
 	}
 };
@@ -237,30 +239,9 @@ void Level::moveEnemies(double dt)
 {
 	for (unsigned int i = 0; i < Enemies.size(); i++)
 	{
-		int dx = pathX[Enemies[i].pathSegment+1] - Enemies[i].x;
-		int dy = pathY[Enemies[i].pathSegment+1] - Enemies[i].y;
-		double movement = Enemies[i].v * dt;
-		if (dx*dx + dy*dy <= movement*movement)
+		if (Enemies[i].Move(dt, pathX, pathY))
 		{
-			if ((++Enemies[i].pathSegment) >= pathX.size()-1)
-			{
-				Enemies[i].pathSegment = 0;
-				--Player.lives;
-			}
-
-			Enemies[i].x = pathX[Enemies[i].pathSegment];
-			Enemies[i].y = pathY[Enemies[i].pathSegment];
-		}
-		else
-		{
-			if (dx > 0)
-				Enemies[i].x += movement;
-			else if (dx < 0)
-				Enemies[i].x -= movement;
-			else if (dy > 0)
-				Enemies[i].y += movement;
-			else if (dy < 0)
-				Enemies[i].y -= movement;
+			--Player.lives;
 		}
 	}
 };
@@ -296,23 +277,9 @@ void Level::fire()
 		{
 		for (unsigned int j = 0; j < Enemies.size(); j++)
 		{
-			double dx, dy, towerX, towerY, enemyX, enemyY;
-			towerX = (Towers[i].gridX + .5)*TILESIZE;
-			towerY = (Towers[i].gridY + .5)*TILESIZE;
-			enemyX = Enemies[j].x + .5*TILESIZE;
-			enemyY = Enemies[j].y + .5*TILESIZE;
-			dx = enemyX - towerX;
-			dy = enemyY - towerY;
-			if (dx*dx + dy*dy <= Towers[i].range*Towers[i].range)
+			if(Towers[i].Fire(Enemies[j], Shots))
 			{
-				Towers[i].reloadTime+=1./Towers[i].rate;
-				Shots.push_back(Bullet(towerX, towerY,
-							enemyX, enemyY));
-				if (Enemies[j].damage(Towers[i].power))
-				{
-					destroyEnemy(j);
-				}
-				break;
+				destroyEnemy(j);
 			}
 		}
 		}

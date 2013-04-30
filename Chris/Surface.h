@@ -4,7 +4,7 @@
 #ifndef SURFACE_H
 #define SURFACE_H
 
-const int TILESIZE = 50;
+const int TILESIZE = 100;
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_gfxPrimitives.h>
