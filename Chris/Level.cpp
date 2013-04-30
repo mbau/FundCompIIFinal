@@ -170,6 +170,14 @@ bool Level::UpgradeTower(Tower *tower, int upgradeType)
 	}
 };
 
+//When prompted, tower off vector and off screen
+bool Level::DestroyTower(Tower *tower)
+{
+	for(unsigned int i=0;i<Towers.size();i++){
+		if(*tower==&Towers[i]) Towers.erase(Towers.begin()+i);	
+	}
+};
+
 // Returns a pointer to the tower at the position if it exists, otherwise NULL
 Tower* Level::isTower(int x, int y)
 {

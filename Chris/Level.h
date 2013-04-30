@@ -27,6 +27,7 @@ class Level {
 
 		bool BuildTower(int x, int y, int type);
 		bool UpgradeTower(Tower *tower, int upgradeType);
+		bool DestroyTower(Tower *tower);
 		Tower* isTower(int x, int y);
 		bool isValid(int x, int y);
 
