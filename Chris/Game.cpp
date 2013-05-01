@@ -7,15 +7,15 @@
 #include <iostream>
 using namespace std;
 
-const double FRAMETIME = 1./60.;
+const double FRAMETIME = 1./60.; //Framerate for animation
 
 // Default constructor
-Game::Game()
+Game::Game() 
 {
-	windowWidth = 600;
+	windowWidth = 600; //window size start variables
 	windowHeight = 400;
 
-	Running = true;
+	Running = true; 
 
 	menu.On = false;
 };
@@ -23,51 +23,49 @@ Game::Game()
 // Game setup
 bool Game::Init()
 {
-	// Init SDL stuff
+	// Init all SDL subsystems
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
 		return false;
 	}
 
 	// Create a new level
 	currentLevel = new Level();
-	if (!currentLevel->Init("resources/lvl1.txt"))
+	if (!currentLevel->Init("resources/lvl0.txt"))
 		return false;
 
 	Surface::Padding = TILESIZE;
 	windowWidth = TILESIZE * currentLevel->Grid[0].size()
-				+ Surface::Padding*2;
+				+ Surface::Padding*2;//gets width from the file input grid vector
 	windowHeight = TILESIZE * currentLevel->Grid.size()
-				+ Surface::Padding*2;
+				+ Surface::Padding*2;//same for height
 
-	// Init the display surface
+	// Init the display surface, screen
 	Surface::Display = SDL_SetVideoMode(windowWidth, windowHeight, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
 
-	SDL_WM_SetCaption("Save the Fort",NULL);
-//	SDL_WM_SetIcon(icon,NULL);
+	SDL_WM_SetCaption("Save the Fort",NULL);//title for window
 
-	if (!Surface::Display)
+	if (!Surface::Display) //if there was an error in setting up the screen
 		return false;
 
 	// Load the sprite sheet
-	Surface::SpriteSheet = Surface::LoadImage("resources/sprites.bmp");
+	Surface::SpriteSheet = Surface::LoadImage("resources/sprites.bmp");//get sprites for gfx
 
-	if (!Surface::SpriteSheet)
+	if (!Surface::SpriteSheet) //if there was an error in getting pictures
 		return false;
 
-	Surface::IconSheet = Surface::LoadImage("resources/icons.bmp");
+	Surface::IconSheet = Surface::LoadImage("resources/icons.bmp");//get icons
 
-	if (!Surface::IconSheet)
+	if (!Surface::IconSheet) //if there was an error in the getting pictures
 		return false;
 
-	// Set sprite transparency to RGB(255, 0, 255) AKA magenta
+	// Set sprite transparency to RGB(255, 255, 255) AKA white
 	SDL_SetColorKey(Surface::SpriteSheet, SDL_SRCCOLORKEY | SDL_RLEACCEL,
-			SDL_MapRGB(Surface::SpriteSheet->format, 255, 255, 255));
+			SDL_MapRGB(Surface::SpriteSheet->format, 255, 255, 255));//for the sprites
 
 	SDL_SetColorKey(Surface::IconSheet, SDL_SRCCOLORKEY | SDL_RLEACCEL,
-			SDL_MapRGB(Surface::IconSheet->format, 255, 255, 255));
+			SDL_MapRGB(Surface::IconSheet->format, 255, 255, 255));//for the icons
 
-
-	return true;
+	return true;//returns true if everything is okay
 };
 
 // Main execution loop
@@ -79,17 +77,17 @@ int Game::Run()
 	// Event queue
 	SDL_Event Event;
 
-	while (Running)
+	while (Running)//while the program in running
 	{
-		while (SDL_PollEvent(&Event))
+		while (SDL_PollEvent(&Event))//sends event to be handled by OnEvent
 			OnEvent(&Event);
 
-		Update();
-		Render();
-		Wait();
+		Update();//updates positions for enemies, bullets, etc.
+		Render();//renders all graphics
+		Wait();//pause
 	}
 
-	Cleanup();
+	Cleanup();//cleans up sdl surfaces
 
 	return 0;
 };
@@ -97,39 +95,39 @@ int Game::Run()
 // Event processing
 void Game::OnEvent(SDL_Event *Event)
 {
-	switch (Event->type)
+	switch (Event->type)//switch based on what the input is
 	{
-		case SDL_QUIT:
-			OnQuit();
-			break;
-		case SDL_KEYDOWN:
-			OnKeyDown(Event->key.keysym.sym);
-			break;
-		case SDL_MOUSEMOTION:
-			OnMouseMove(Event->motion.x, Event->motion.y);
-			break;
-		case SDL_MOUSEBUTTONDOWN:
-			switch (Event->button.button)
+		case SDL_QUIT://if the x on window is pressed
+			OnQuit();//quits
+			break;//exit switch
+		case SDL_KEYDOWN://key is pressed down
+			OnKeyDown(Event->key.keysym.sym);//sent to key down function
+			break;//exit switch
+		case SDL_MOUSEMOTION://mouse is moved
+			OnMouseMove(Event->motion.x, Event->motion.y);//sent to mouse function
+			break;//exit
+		case SDL_MOUSEBUTTONDOWN://mouse button pressed down
+			switch (Event->button.button)//switch based on which button is pressed down
 			{
-				case SDL_BUTTON_LEFT:
-					OnLClick( Event->button.x,
+				case SDL_BUTTON_LEFT://left mouse botton
+					OnLClick( Event->button.x,//left click function
 						  Event->button.y);
 					break;
-				case SDL_BUTTON_RIGHT:
-					OnRClick( Event->button.x,
+				case SDL_BUTTON_RIGHT://right click
+					OnRClick( Event->button.x,//right click function
 						  Event->button.y);
 					break;
-				case SDL_BUTTON_MIDDLE:
-					OnMClick( Event->button.x,
+				case SDL_BUTTON_MIDDLE://middle click (wheel)
+					OnMClick( Event->button.x,//middle click funtion 
 						  Event->button.y);
 					break;
 			}
 			break;
-		case SDL_MOUSEBUTTONUP:
+		case SDL_MOUSEBUTTONUP://mouse button is release after click
 			switch(Event->button.button)
 			{
-				case SDL_BUTTON_RIGHT:
-					OnRClickRelease(Event->button.x,
+				case SDL_BUTTON_RIGHT://right click
+					OnRClickRelease(Event->button.x,//right click release function
 							Event->button.y);
 					break;
 			}
@@ -150,108 +148,109 @@ void Game::Render()
 //	Surface::DrawRect(Display, 0, 0, Display->w, Display->h,
 //			255, 255, 255, 255);
 
-	currentLevel->Render();
-	drawMargins();
-	currentLevel->RenderHUD();
+	currentLevel->Render();//Render() pointed to currentLevel
+	drawMargins();//draw margins (so controls will be visible everywhere)
+	currentLevel->RenderHUD();//RenderHUD() pointed to currentLevel
 
-	drawMenu();
+	drawMenu();//draw menu function
 
 	// Draw the display to screen (double buffer)
-	SDL_Flip(Surface::Display);
+	SDL_Flip(Surface::Display);//update the screen
 };
 
-void Game::drawMargins()
+void Game::drawMargins()//draws margins on the sides so controls will always be visible
 {
-	SDL_Rect rect[4] = {
-	{0, 0, windowWidth, Surface::Padding},
-	{windowWidth-Surface::Padding, 0, Surface::Padding, windowHeight},
-	{0, 0, Surface::Padding, windowHeight},
-	{0, windowHeight-Surface::Padding,windowWidth, Surface::Padding}};
-	for (int i = 0; i < 4; i++)
+	SDL_Rect rect[4] = {//array of 4 sdl rects
+	{0, 0, windowWidth, Surface::Padding},//top margin
+	{windowWidth-Surface::Padding, 0, Surface::Padding, windowHeight},//right margin
+	{0, 0, Surface::Padding, windowHeight},//left margin
+	{0, windowHeight-Surface::Padding,windowWidth, Surface::Padding}};//bottom margin
+	for (int i = 0; i < 4; i++)//fills the rects with gray
 	{
 		SDL_FillRect(Surface::Display, &rect[i], SDL_MapRGB(
 				Surface::Display->format,128,128,128));
 	}
 };
 
+//draw pie menu
 void Game::drawMenu()
 {
-	if (menu.On)
+	if (menu.On)//if the menu is on
 	{
-		int state = getMenuState();
+		int state = getMenuState();//get the which section the mouse is in
 		double theta1, theta2, rad;
 		theta1 = theta2 = 0;
 		rad = 100;
 		switch (state)
 		{
 			case 1:
-				theta1 = 225;
-				theta2 = 315;
+				theta1 = 225;//section on left
+				theta2 = 315;//same as -45
 				break;
 			case 2:
-				theta1 = -45;
+				theta1 = -45;//section on top
 				theta2 = 45;
 				break;
 			case 3:
-				theta1 = 45;
+				theta1 = 45;//section on right
 				theta2 = 135;
 				break;
 			case 4:
-				theta1 = 135;
+				theta1 = 135;//section bottom
 				theta2 = 225;
 				break;
-			case 0:
+			case 0://not in a proper state
 			default:
 				break;
 		}
 
-		filledCircleRGBA(Surface::Display,menu.x, menu.y, rad, 255, 255, 255, 64);
+		filledCircleRGBA(Surface::Display,menu.x, menu.y, rad, 255, 255, 255, 64);//circle menu location and color
 		
 		// Highlight
-		if (state != 0)
-			filledPieRGBA(Surface::Display, menu.x, menu.y,
+		if (state != 0)//if in proper state
+			filledPieRGBA(Surface::Display, menu.x, menu.y,//highlight the sector the mouse is in
 					rad, theta1, theta2, 255, 255, 0, 128);
 
 		// Draw Icons
 		double offset = 3*rad/4;
 		int x, y, icon[4] = {-1, -1, -1, -1};
-		x = menu.x - Surface::Padding - ICONSIZE/2;
+		x = menu.x - Surface::Padding - ICONSIZE/2;///start points for the icons
 		y = menu.y - Surface::Padding - ICONSIZE/2;
 
 		if (menu.target)
 		{
-			switch (menu.target->type)
+			switch (menu.target->type)//icon locations if something is already on the tile
 			{
 				case 0:
 					icon[0] = DAMAGE;	// Top
 					break;
 				case 1:
-					icon[0] = FREEZE;
+					icon[0] = FREEZE;	
 					break;
 				default:
 					icon[0] = DAMAGE;
 					break;
 			}
-
+			//upgrades
 			icon[1] = RANGE;	// Right
 			icon[2] = SELL; 	// Bottom
 			icon[3] = RATE;		// Left
 		}
 		else if (currentLevel->isValid(currentLevel->MouseGrid.x,
-						currentLevel->MouseGrid.y))
+						currentLevel->MouseGrid.y))//if there is nothing on the screen
 		{
-			icon[0] = NORMAL;
-			icon[1] = SLOW;
+			icon[0] = NORMAL;//normal turret
+			icon[1] = SLOW;//slow turret
 			icon[2] = -1;
 			icon[3] = -1;
 		}
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 4; i++) 
 		{
 			double angle = (i-1)*M_PI/2;
-			Surface::Draw(Surface::Display, Surface::IconSheet,
+			Surface::Draw(Surface::Display, Surface::IconSheet,//draws the actual menu
 				x + offset*cos(angle),
 				y + offset*sin(angle),
-				icon[i]*ICONSIZE, 0,
+				icon[i]*ICONSIZE, 0,//draws the icons
 				ICONSIZE, ICONSIZE);
 		}
 	}
@@ -259,16 +258,16 @@ void Game::drawMenu()
 
 int Game::getMenuState()
 {	
-	int numState = 4;
-	int diffX = Mouse.x - menu.x;
+	int numState = 4;//4 states
+	int diffX = Mouse.x - menu.x;//difference between mouse loc and menu loc
 	int diffY = Mouse.y - menu.y;
 	if (diffX*diffX + diffY*diffY < 50*50)
-		return 0;	// Inactive selection
+		return 0;	// Inactive selection, mouse is too far away
 	else
 	{
-		double angle = 180*atan2(diffY,diffX)/M_PI + 180;
-		int value = (angle/(360/numState))+.5;
-		if (value < 1)
+		double angle = 180*atan2(diffY,diffX)/M_PI + 180;//angle for between mouse and center
+		int value = (angle/(360/numState))+.5;//which section of circle it is in
+		if (value < 1)//accounts for numbers smaller than 1
 			value += 4;
 
 		return value;
@@ -279,10 +278,10 @@ int Game::getMenuState()
 // Cleanup before exiting, a bit like a deconstructor
 void Game::Cleanup()
 {
-	SDL_FreeSurface(Surface::Display);
+	SDL_FreeSurface(Surface::Display);//free all surfaces
 	SDL_FreeSurface(Surface::SpriteSheet);
 
-	delete currentLevel;
+	delete currentLevel;//gets rid of the current game
 
 	// Cleanup SDL stuff
 	SDL_Quit();
@@ -297,16 +296,16 @@ void Game::Cleanup()
 // End the game
 void Game::OnQuit()
 {
-	Running = false;
+	Running = false;//quit
 };
 
 // Process key press
-void Game::OnKeyDown(SDLKey sym)
+void Game::OnKeyDown(SDLKey sym)//event key pressed down
 {
 	switch (sym)
 	{
-		case SDLK_q:
-			OnQuit();
+		case SDLK_q://q key
+			OnQuit();//quits
 			break;
 		default:
 			break;
@@ -321,21 +320,21 @@ void Game::OnLClick(int x, int y)
 // Process right click
 void Game::OnRClick(int x, int y)
 {
-	menu.On = true;
-	menu.x = (.5 + currentLevel->MouseGrid.x)*TILESIZE + Surface::Padding;
+	menu.On = true;//turn menu on
+	menu.x = (.5 + currentLevel->MouseGrid.x)*TILESIZE + Surface::Padding;//start menu at the locations
 	menu.y = (.5 + currentLevel->MouseGrid.y)*TILESIZE + Surface::Padding;
 	menu.target = currentLevel->isTower(currentLevel->MouseGrid.x,
 						currentLevel->MouseGrid.y);
 };
 
-void Game::OnRClickRelease(int x, int y)
+void Game::OnRClickRelease(int x, int y)//release of the mouse
 {
 	if (menu.target)	// Tower selected:
 	{
 		switch (getMenuState())
 		{
 			case 1:	// Power
-				currentLevel->UpgradeTower(menu.target, 0);
+				currentLevel->UpgradeTower(menu.target, 0);//upgrade
 				break;
 			case 2:	// Range
 				currentLevel->UpgradeTower(menu.target, 1);
@@ -348,19 +347,19 @@ void Game::OnRClickRelease(int x, int y)
 				break;
 		};
 	}
-	else	// Not a tower
+	else	// Not a tower, can place one there
 	{
 		if (currentLevel->isValid(currentLevel->MouseGrid.x,
 					currentLevel->MouseGrid.y))
 		switch (getMenuState())
 		{
 			case 1:
-				currentLevel->BuildTower(
+				currentLevel->BuildTower(//builds normal turret
 					currentLevel->MouseGrid.x,
 					currentLevel->MouseGrid.y,
 				       	0);
 				break;
-			case 2:currentLevel->BuildTower(
+			case 2:currentLevel->BuildTower(//builds slow turret
 					currentLevel->MouseGrid.x,
 					currentLevel->MouseGrid.y,
 				       	1);
@@ -375,7 +374,7 @@ void Game::OnMClick(int x, int y)
 {
 	currentLevel->BuildTower(	currentLevel->MouseGrid.x,
 					currentLevel->MouseGrid.y,
-				       		0);
+				       		0);//builds tower on middle click
 };
 
 // Trigger on mouse movement
@@ -384,9 +383,9 @@ void Game::OnMouseMove(int x, int y)
 	// Store the new mouse position
 	Mouse.x = x;
 	Mouse.y = y;
-	if (!menu.On)
+	if (!menu.On)//if the menu is off
 	{
-		currentLevel->MouseGrid.x = (Mouse.x-Surface::Padding)
+		currentLevel->MouseGrid.x = (Mouse.x-Surface::Padding)//which grid box the mouse is in
 						/ TILESIZE;
 		currentLevel->MouseGrid.y = (Mouse.y-Surface::Padding)
 						/ TILESIZE;

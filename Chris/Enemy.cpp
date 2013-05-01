@@ -8,10 +8,10 @@
 // Enemy strength/value scales with i
 Enemy::Enemy(int i)
 {
-	maxHealth = 50.*pow(2., i/10.);	// Double every 10
-	health = maxHealth;
+	maxHealth = 50.*pow(2., i/10.);	// Double every 10, gets harder as time goes on
+	health = maxHealth;//intial health
 	value = maxHealth;
-	type = rand()%3;
+	type = rand()%3;//random type
 	x = y = pathSegment = 0;
 	v = TILESIZE;
 	direction = 0;
@@ -22,15 +22,15 @@ Enemy::Enemy(int i)
 // Deals damage to the enemy and return true if dead
 bool Enemy::damage(double damage)
 {
-	health -= damage;
+	health -= damage;//take health away  from enemy
 	if (health < 0)
 	{
 		health = 0;
-		return true;
+		return true;//dead
 	}
 	else
 	{
-		return false;
+		return false;//alive
 	};
 };
 
@@ -42,18 +42,18 @@ void Enemy::slow(double power)
 
 void Enemy::Render()
 {
-	Surface::DrawSprite(direction, 3+type, x, y);
+	Surface::DrawSprite(direction, 3+type, x, y);//draw enemy
 };
 
-// Returns true when the end of the path is reached
+// Returns true when the end of the path is reached, defines enemy movement
 bool Enemy::Move(double dt, vector<int> &pathX, vector<int> &pathY)
 {
 	bool pathDone = false;
 	int dx = pathX[pathSegment+1] - x;
 	int dy = pathY[pathSegment+1] - y;
-	double movement = v * dt * slowfactor;
+	double movement = v * dt * slowfactor;//velocity
 
-	if (dx*dx + dy*dy <= movement*movement)
+	if (dx*dx + dy*dy <= movement*movement)//
 	{
 		if ((++pathSegment) >= pathX.size()-1)
 		{
