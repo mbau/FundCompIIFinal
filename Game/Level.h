@@ -31,6 +31,8 @@ class Level {
 		Tower* isTower(int x, int y);
 		bool isValid(int x, int y);
 
+		bool isGameOver();
+
 		void setSpawnRate(double rt);
 
 		vector<Tower> Towers;
