@@ -12,6 +12,7 @@ class Enemy {
 		Enemy(int i);
 		void Render();
 		bool damage(double damage);
+		void slow(double);
 		bool Move(double dt, vector<int> &pathX, vector<int> &pathY);
 
 		// Game vars
@@ -26,6 +27,8 @@ class Enemy {
 		int pathSegment;
 		double v;	// Velocity, px/sec
 		int direction;
+		double slowfactor;
+		double regen_rate;
 	private:
 };
 

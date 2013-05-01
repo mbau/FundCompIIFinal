@@ -15,6 +15,8 @@ Enemy::Enemy(int i)
 	x = y = pathSegment = 0;
 	v = TILESIZE;
 	direction = 0;
+	slowfactor = 1;
+	regen_rate = 0.2;
 };
 
 // Deals damage to the enemy and return true if dead
@@ -32,6 +34,12 @@ bool Enemy::damage(double damage)
 	};
 };
 
+//slows enemy by a percentage
+void Enemy::slow(double power)
+{
+	slowfactor *= (1-power);
+}
+
 void Enemy::Render()
 {
 	Surface::DrawSprite(direction, 3+type, x, y);
@@ -43,7 +51,7 @@ bool Enemy::Move(double dt, vector<int> &pathX, vector<int> &pathY)
 	bool pathDone = false;
 	int dx = pathX[pathSegment+1] - x;
 	int dy = pathY[pathSegment+1] - y;
-	double movement = v * dt;
+	double movement = v * dt * slowfactor;
 
 	if (dx*dx + dy*dy <= movement*movement)
 	{

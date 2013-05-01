@@ -230,6 +230,7 @@ void Level::Update(double dt)
 	moveEnemies(dt);
 	updateTowers(dt);
 	updateShots(dt);
+	updateSlow(dt);
 
 	// Execute state based interactions
 	fire();
@@ -281,6 +282,21 @@ void Level::updateShots(double dt)
 		else
 			i++;
 	};
+};
+
+void Level::updateSlow(double dt)
+{
+	for (unsigned int i = 0; i < Enemies.size(); i++)
+	{
+		if (Enemies[i].slowfactor < 1)
+		{
+			Enemies[i].slowfactor += Enemies[i].regen_rate;
+		}
+		if (Enemies[i].slowfactor > 1)
+		{
+			Enemies[i].slowfactor = 1;
+		}
+	}
 };
 
 void Level::fire()

@@ -49,6 +49,7 @@ class Level {
 		void moveEnemies(double dt);
 		void updateTowers(double dt);
 		void updateShots(double dt);
+		void updateSlow(double dt);
 		void fire();
 		void destroyEnemy(unsigned int i);
 		
