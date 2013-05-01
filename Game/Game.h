@@ -44,6 +44,7 @@ class Game {
 		void OnQuit();
 		void OnKeyDown(SDLKey sym);
 		void OnLClick(int x, int y);
+		void OnLClickRelease(int x, int y);
 		void OnRClick(int x, int y);
 		void OnRClickRelease(int x, int y);
 		void OnMClick(int x, int y);

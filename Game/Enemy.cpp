@@ -56,7 +56,7 @@ bool Enemy::Move(double dt, vector<int> &pathX, vector<int> &pathY)
 
 	if (dx*dx + dy*dy <= movement*movement)//
 	{
-		if ((++pathSegment) >= pathX.size()-1)
+		if ((++pathSegment) >= ((int)pathX.size())-1)
 		{
 			pathSegment = 0;
 			pathDone = true;

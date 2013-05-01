@@ -64,6 +64,8 @@ bool Level::Init(char *filename)
 void Level::Render()
 {
 	RenderGrid();
+
+	// Highlight stuff
 	Tower* temp = NULL;
 	if ((temp = isTower(MouseGrid.x, MouseGrid.y)))
 	{
@@ -81,6 +83,7 @@ void Level::Render()
 			MouseGrid.x*TILESIZE, MouseGrid.y*TILESIZE,
 			TILESIZE, TILESIZE, 255, 0, 0, 64); 
 	}
+
 	RenderTowers();	
 	RenderEnemies();
 	RenderShots();
@@ -114,6 +117,11 @@ void Level::RenderEnemies()
 	{
 		Enemies[i].Render();
 	};
+	
+	// Draw the last path tile on top; enemies 'enter' the fort
+	int i = pathX.back();
+	int j = pathY.back();
+	Surface::DrawSprite(Grid[i][j], 0, j*TILESIZE, i*TILESIZE);
 };
 
 void Level::RenderShots()

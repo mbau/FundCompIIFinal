@@ -122,7 +122,8 @@ int Tower::UpgradeCost(int upgradeType)
 
 	if (upgradeType < 3)
 		return costs[upgradeType];
-
+	else
+		return 0;
 };
 
 //check to see if a certain enemy is in range of the tower

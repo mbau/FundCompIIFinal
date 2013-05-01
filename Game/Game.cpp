@@ -132,6 +132,10 @@ void Game::OnEvent(SDL_Event *Event)
 		case SDL_MOUSEBUTTONUP://mouse button is release after click
 			switch(Event->button.button)
 			{
+				case SDL_BUTTON_LEFT:
+					OnLClickRelease(Event->button.x,
+							Event->button.y);
+					break;
 				case SDL_BUTTON_RIGHT://right click
 					OnRClickRelease(Event->button.x,//right click release function
 							Event->button.y);
@@ -160,8 +164,8 @@ void Game::Render()
 
 	drawMenu();//draw menu function
 
-	// Draw the display to screen (double buffer)
-	SDL_Flip(Surface::Display);//update the screen
+	// Flip the display to screen (double buffer)
+	SDL_Flip(Surface::Display);
 };
 
 void Game::drawMargins()//draws margins on the sides so controls will always be visible
@@ -321,24 +325,38 @@ void Game::OnKeyDown(SDLKey sym)//event key pressed down
 // Process left click
 void Game::OnLClick(int x, int y)
 {
+	// Alias to right click
+	OnRClick(x,y);
+};
+
+// Process click release
+void Game::OnLClickRelease(int x, int y)
+{
+	// Alias to right release
+	OnRClickRelease(x,y);
 };
 
 // Process right click
 void Game::OnRClick(int x, int y)
 {
-	menu.On = true;//turn menu on
-	menu.x = (.5 + currentLevel->MouseGrid.x)*TILESIZE + Surface::Padding;//start menu at the locations
-	menu.y = (.5 + currentLevel->MouseGrid.y)*TILESIZE + Surface::Padding;
-	menu.target = currentLevel->isTower(currentLevel->MouseGrid.x,
+	if (!menu.On)
+	{
+		menu.On = true;//turn menu on
+		menu.x = (.5 + currentLevel->MouseGrid.x)*TILESIZE + Surface::Padding;//start menu at the locations
+		menu.y = (.5 + currentLevel->MouseGrid.y)*TILESIZE + Surface::Padding;
+		menu.target = currentLevel->isTower(currentLevel->MouseGrid.x,
 						currentLevel->MouseGrid.y);
+	};
 };
 
 void Game::OnRClickRelease(int x, int y)//release of the mouse
 {
-	if (menu.target)	// Tower selected:
+	if (menu.On)
 	{
-		switch (getMenuState())
+		if (menu.target)	// Tower selected:
 		{
+			switch (getMenuState())
+			{
 			case 1:	// Power
 				currentLevel->UpgradeTower(menu.target, 0);//upgrade
 				break;
@@ -351,14 +369,14 @@ void Game::OnRClickRelease(int x, int y)//release of the mouse
 			case 4:	// Rate
 				currentLevel->UpgradeTower(menu.target, 2);
 				break;
-		};
-	}
-	else	// Not a tower, can place one there
-	{
-		if (currentLevel->isValid(currentLevel->MouseGrid.x,
-					currentLevel->MouseGrid.y))
-		switch (getMenuState())
+			}
+		}
+		else	// Not a tower, can place one there
 		{
+			if (currentLevel->isValid(currentLevel->MouseGrid.x,
+						currentLevel->MouseGrid.y))
+			switch (getMenuState())
+			{
 			case 1:
 				currentLevel->BuildTower(//builds normal turret
 					currentLevel->MouseGrid.x,
@@ -369,10 +387,11 @@ void Game::OnRClickRelease(int x, int y)//release of the mouse
 					currentLevel->MouseGrid.x,
 					currentLevel->MouseGrid.y,
 				       	1);
-		};
-	}
+			};
+		}
 
-	menu.On = false;
+		menu.On = false;
+	}
 };
 
 // Process middle click
