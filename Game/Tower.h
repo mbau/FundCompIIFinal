@@ -19,6 +19,7 @@ class Tower {
 		void Upgrade(int type);
 		int UpgradeCost(int type);
 
+		bool inRange(Enemy &enemy);
 		bool Fire(Enemy &enemy,	vector <Bullet> &Shots);
 
 		// Grid coords

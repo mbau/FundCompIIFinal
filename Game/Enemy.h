@@ -29,6 +29,7 @@ class Enemy {
 		int direction;
 		double slowfactor;
 		double regen_rate;
+		int distance_traveled;
 	private:
 };
 

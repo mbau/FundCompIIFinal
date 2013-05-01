@@ -230,7 +230,7 @@ void Level::Update(double dt)
 	moveEnemies(dt);
 	updateTowers(dt);
 	updateShots(dt);
-	updateSlow(dt);
+	updateSlow();
 
 	// Execute state based interactions
 	fire();
@@ -257,6 +257,7 @@ void Level::moveEnemies(double dt)
 		if (Enemies[i].Move(dt, pathX, pathY))
 		{
 			--Player.lives;
+			Enemies.erase(Enemies.begin()+i);
 		}
 	}
 };
@@ -284,8 +285,11 @@ void Level::updateShots(double dt)
 	};
 };
 
-void Level::updateSlow(double dt)
+void Level::updateSlow()
 {
+	if(!Enemies.empty())
+	{
+	
 	for (unsigned int i = 0; i < Enemies.size(); i++)
 	{
 		if (Enemies[i].slowfactor < 1)
@@ -297,22 +301,35 @@ void Level::updateSlow(double dt)
 			Enemies[i].slowfactor = 1;
 		}
 	}
+	}
 };
 
 void Level::fire()
 {
+	double distance = 0;
+	int furthest = 0;
+	if(!Enemies.empty())
+	{
+	
 	for (unsigned int i = 0; i < Towers.size(); i++)
 	{
 		if (Towers[i].reloadTime <= 0)
 		{
-		for (unsigned int j = 0; j < Enemies.size(); j++)
-		{
-			if(Towers[i].Fire(Enemies[j], Shots))
+			for (unsigned int j = 0; j < Enemies.size(); j++)
 			{
-				destroyEnemy(j);
+				if (Enemies[j].distance_traveled > distance && Towers[i].inRange(Enemies[j]))
+				{
+					distance = Enemies[j].distance_traveled;
+					furthest = j;
+				}
+			}
+			
+			if (Towers[i].Fire(Enemies[furthest], Shots))
+			{
+				destroyEnemy(furthest);
 			}
 		}
-		}
+	}
 	}
 };
 

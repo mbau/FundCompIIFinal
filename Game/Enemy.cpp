@@ -17,6 +17,7 @@ Enemy::Enemy(int i)
 	direction = 0;
 	slowfactor = 1;
 	regen_rate = 0.2;
+	distance_traveled = 0;
 };
 
 // Deals damage to the enemy and return true if dead
@@ -38,7 +39,7 @@ bool Enemy::damage(double damage)
 void Enemy::slow(double power)
 {
 	slowfactor *= (1-power);
-}
+};
 
 void Enemy::Render()
 {
@@ -87,6 +88,7 @@ bool Enemy::Move(double dt, vector<int> &pathX, vector<int> &pathY)
 			direction = 0;
 		}
 	}
+	distance_traveled += movement;
 
 	return pathDone;
 };

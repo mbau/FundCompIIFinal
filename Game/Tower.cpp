@@ -22,10 +22,10 @@ void Tower::SetType(int newType)
 	{
 		default:
 		case 0:
-			SetParams(2*TILESIZE, 1, 32);
+			SetParams(1.5*TILESIZE, 1, 10);
 			break;
 		case 1:
-			SetParams(2*TILESIZE, .1, 32);
+			SetParams(1.5*TILESIZE, .1, 10);
 			break;
 	};
 };
@@ -125,6 +125,24 @@ int Tower::UpgradeCost(int upgradeType)
 
 };
 
+//check to see if a certain enemy is in range of the tower
+bool Tower::inRange(Enemy &enemy)
+{
+	double dx, dy, towerX, towerY, enemyX, enemyY;
+	towerX = (gridX + .5)*TILESIZE;//tower pos
+	towerY = (gridY + .5)*TILESIZE;
+	enemyX = enemy.x + .5*TILESIZE;//enemy pos
+	enemyY = enemy.y + .5*TILESIZE;
+	dx = enemyX - towerX;//distance between tower and enemy
+	dy = enemyY - towerY;
+		
+	if (dx*dx + dy*dy <= range*range) 
+	{
+		return true;
+	}
+	return false;
+};
+
 // Attempt to fire at enemy; return true if destroyed
 bool Tower::Fire(Enemy &enemy,	vector <Bullet> &Shots)
 {
@@ -137,7 +155,7 @@ bool Tower::Fire(Enemy &enemy,	vector <Bullet> &Shots)
 		enemyY = enemy.y + .5*TILESIZE;
 		dx = enemyX - towerX;//distance between tower and enemy
 		dy = enemyY - towerY;
-		if (dx*dx + dy*dy <= range*range)//if enemy is within range
+		if (inRange(enemy))//if enemy is within range
 		{
 			double angle = atan2(dy, dx)/M_PI + 1;//angle between tower and enemy
 			direction = (int)((4*(angle))+6.5)%8;//fire direction reference for turret
