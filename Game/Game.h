@@ -20,6 +20,7 @@ class Game {
 		void Render();
 		void Cleanup();
 		void Wait();
+		void GameOver();
 
 		int windowWidth;
 		int windowHeight;

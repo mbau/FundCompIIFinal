@@ -126,17 +126,21 @@ void Level::RenderShots()
 
 void Level::RenderHUD()
 {
+	// FYI, char width and height is 8 by default
 	stringstream money;
        	money << "$" << Player.money;
-	stringRGBA(Surface::Display, 0, 10, money.str().c_str(), 0,0,0,255);
+	stringRGBA(Surface::Display, 8*10, 10,
+			money.str().c_str(), 0,0,0,255);
 
 	stringstream lives;
 	lives << "Lives: " << Player.lives;
-	stringRGBA(Surface::Display, 250, 10, lives.str().c_str(), 0,0,0,255);
+	stringRGBA(Surface::Display, Surface::Display->w/2 - 8*6, 10,
+			lives.str().c_str(), 0,0,0,255);
 
 	stringstream score;
 	score << "Score: " << Player.score;
-	stringRGBA(Surface::Display, 500, 10, score.str().c_str(), 0,0,0,255);
+	stringRGBA(Surface::Display, Surface::Display->w - 8*20, 10,
+			score.str().c_str(), 0,0,0,255);
 };
 
 bool Level::BuildTower(int x, int y, int type)
@@ -338,4 +342,9 @@ void Level::destroyEnemy(unsigned int i)
 	Player.score += Enemies[i].value;
 	Player.money += Enemies[i].value;
 	Enemies.erase(Enemies.begin() + i);
+};
+
+bool Level::isGameOver()
+{
+	return (Player.lives <= 0);
 };

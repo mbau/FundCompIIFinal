@@ -84,7 +84,13 @@ int Game::Run()
 
 		Update();//updates positions for enemies, bullets, etc.
 		Render();//renders all graphics
-		Wait();//pause
+
+		// Check for end of game
+		if(currentLevel->isGameOver())
+			GameOver();
+
+		// Framerate limiter
+		Wait();
 	}
 
 	Cleanup();//cleans up sdl surfaces
@@ -382,6 +388,7 @@ void Game::OnMouseMove(int x, int y)
 {
 	// Store the new mouse position
 	Mouse.x = x;
+
 	Mouse.y = y;
 	if (!menu.On)//if the menu is off
 	{
@@ -401,4 +408,44 @@ void Game::Wait()
 		next_time = now + 1000*FRAMETIME;
 	else
 		SDL_Delay(next_time - now);
+};
+
+// Pseudo-Game.Run() loop for the game over state
+void Game::GameOver()
+{
+	// Lives shouldn't be negative
+	if (currentLevel->Player.lives < 0)
+		currentLevel->Player.lives = 0;
+
+	SDL_Event Event;
+	while(Running)
+	{
+		// Exit on Q or window close
+		while (SDL_PollEvent(&Event))
+		{
+			switch (Event.type)
+			{
+				case SDL_KEYDOWN:
+					if (Event.key.keysym.sym == SDLK_q)
+						OnQuit();
+					break;
+				case SDL_QUIT:
+					OnQuit();
+					break;
+			}
+		}
+
+		// Fade to black
+		Surface::DrawRect(Surface::Display, 0, 0,
+				currentLevel->Grid[0].size()*TILESIZE,
+				currentLevel->Grid.size()*TILESIZE,
+				0, 0, 0, 1+127*FRAMETIME);
+		// Draw text
+		stringRGBA(Surface::Display,
+				(windowWidth-8*9)/2 , (windowHeight-8)/2,
+				"GAME OVER", 255, 255, 255, 255);
+
+		SDL_Flip(Surface::Display);
+		Wait();
+	};
 };

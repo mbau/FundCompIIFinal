@@ -76,6 +76,7 @@ bool Surface::DrawRect(SDL_Surface* Dest, int x, int y, int w, int h,
 {
 	if (!Dest)
 		return false;
+	/*
 	SDL_Surface *tempSurf;	// Make a new surface
 	tempSurf = SDL_CreateRGBSurface(Dest->flags, w, h, 32,
 			0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
@@ -90,7 +91,11 @@ bool Surface::DrawRect(SDL_Surface* Dest, int x, int y, int w, int h,
 	Draw(Dest, tempSurf, x, y);
 
 	// Free the surface
-	SDL_FreeSurface(tempSurf);
+	SDL_FreeSurface(tempSurf);*/
+
+	boxRGBA(Display, x + Padding, y + Padding,
+			x + Padding + w, y + Padding + h,
+			r, g, b, a);
 
 	return true;
 };
