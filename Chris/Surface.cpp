@@ -28,7 +28,7 @@ SDL_Surface* Surface::LoadImage(char* filename)
 // Blit an entire surface to another surface
 bool Surface::Draw(SDL_Surface* Dest, SDL_Surface* Src, int x, int y)
 {
-	if (!Dest || !Src)
+	if (!Dest || !Src)//if the pointers do not point to anything
 		return false;
 
 	// Destination rect
