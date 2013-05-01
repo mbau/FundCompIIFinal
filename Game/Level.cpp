@@ -153,7 +153,7 @@ void Level::RenderHUD()
 
 bool Level::BuildTower(int x, int y, int type)
 {
-	int cost = 100;
+	int cost = 500;
 	if (Player.money >= cost && isValid(x, y) && !isTower(x, y))
 	{
 		Player.money -= cost;
@@ -318,8 +318,8 @@ void Level::updateSlow()
 
 void Level::fire()
 {
-	double distance = 0;
-	int furthest = 0;
+	double distance;
+	int furthest;
 	if(!Enemies.empty())
 	{
 	
@@ -327,6 +327,9 @@ void Level::fire()
 	{
 		if (Towers[i].reloadTime <= 0)
 		{
+			distance = 0;
+			furthest = 0;
+
 			for (unsigned int j = 0; j < Enemies.size(); j++)
 			{
 				if (Enemies[j].distance_traveled > distance && Towers[i].inRange(Enemies[j]))
@@ -340,6 +343,7 @@ void Level::fire()
 			{
 				destroyEnemy(furthest);
 			}
+			
 		}
 	}
 	}

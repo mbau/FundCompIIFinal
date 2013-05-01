@@ -8,12 +8,37 @@
 // Enemy strength/value scales with i
 Enemy::Enemy(int i)
 {
-	maxHealth = 50.*pow(2., i/10.);	// Double every 10, gets harder as time goes on
+	int num=rand()%5;
+	switch(num){
+		case 0://tank
+			type=0;
+			maxHealth = .7*50.*pow(2., i/10.);	// Double every 10, gets harder as time goes on
+			v = .5*TILESIZE;
+			break;
+		case 1://tank
+			type=0;
+			maxHealth = .7*50.*pow(2., i/10.);	// Double every 10, gets harder as time goes on
+			v = .5*TILESIZE;
+			break;
+		case 2://helo
+			type=1;
+			maxHealth = .5*50.*pow(2., i/10.);	// Double every 10, gets harder as time goes on
+			v = TILESIZE;
+			break;
+		case 3://helo
+			type=1;
+			maxHealth = .5*50.*pow(2., i/10.);	// Double every 10, gets harder as time goes on
+			v = TILESIZE;
+			break;
+		case 4://big
+			type=2;
+			maxHealth = 50.*pow(2., i/10.);	// Double every 10, gets harder as time goes on
+			v = .3*TILESIZE;
+			break;
+	}
 	health = maxHealth;//intial health
 	value = maxHealth;
-	type = rand()%3;//random type
 	x = y = pathSegment = 0;
-	v = TILESIZE;
 	direction = 0;
 	slowfactor = 1;
 	regen_rate = 0.2;

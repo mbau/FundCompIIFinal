@@ -22,10 +22,10 @@ void Tower::SetType(int newType)
 	{
 		default:
 		case 0:
-			SetParams(1.5*TILESIZE, 1, 10);
+			SetParams(1.5*TILESIZE, 15, 2);
 			break;
 		case 1:
-			SetParams(1.5*TILESIZE, .1, 10);
+			SetParams(1.5*TILESIZE, .2, 30);
 			break;
 	};
 };
@@ -109,14 +109,14 @@ int Tower::UpgradeCost(int upgradeType)
 	{
 		default:
 		case 0:	// Normal
-			costs[0] = 100;	// power
-			costs[1] = 100;	// range
-			costs[2] = 100;	// rate
+			costs[0] = 500;	// power
+			costs[1] = 500;	// range
+			costs[2] = 500;	// rate
 			break;
 		case 1:	// Slow
-			costs[0] = 100;	// power
-			costs[1] = 100;	// range
-			costs[2] = 100;	// rate
+			costs[0] = 500;	// power
+			costs[1] = 500;	// range
+			costs[2] = 500;	// rate
 			break;
 	}
 
