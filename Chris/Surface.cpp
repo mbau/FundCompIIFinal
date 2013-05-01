@@ -3,26 +3,26 @@
 
 #include "Surface.h"
 
-SDL_Surface* Surface::Display = NULL;
+SDL_Surface* Surface::Display = NULL;//pointers for the image files
 SDL_Surface* Surface::SpriteSheet = NULL;
 SDL_Surface* Surface::IconSheet = NULL;
 int Surface::Padding = 50;
 
 // Utility to load and format a BMP image
-SDL_Surface* Surface::LoadImage(char* filename)
+SDL_Surface* Surface::LoadImage(char* filename)//load image
 {
 	SDL_Surface* Temp = NULL;
 	SDL_Surface* Return = NULL;
 
-	Temp = SDL_LoadBMP(filename);
+	Temp = SDL_LoadBMP(filename);//loads the .bmp
 
-	if (!Temp)
+	if (!Temp)//if there is nothing loaded into the temp
 		return NULL;
 
-	Return = SDL_DisplayFormat(Temp);
-	SDL_FreeSurface(Temp);
+	Return = SDL_DisplayFormat(Temp);//sets the return to the image that was loaded
+	SDL_FreeSurface(Temp);//frees the temp
 
-	return Return;
+	return Return;//returns the loaded image
 };
 
 // Blit an entire surface to another surface
@@ -95,6 +95,7 @@ bool Surface::DrawRect(SDL_Surface* Dest, int x, int y, int w, int h,
 	return true;
 };
 
+//draws the sprite tiles
 bool Surface::DrawSprite(int tileX, int tileY, int x, int y)
 {
 	if (!Display || !SpriteSheet) return false;
