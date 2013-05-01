@@ -141,7 +141,7 @@ void Level::RenderHUD()
 
 bool Level::BuildTower(int x, int y, int type)
 {
-	int cost = 100;
+	int cost = 500;
 	if (Player.money >= cost && isValid(x, y) && !isTower(x, y))
 	{
 		Player.money -= cost;
