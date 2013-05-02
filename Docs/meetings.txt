@@ -1,0 +1,43 @@
+Feb. 28: 9 PM
+Met for first time as a group. We discussed our vision for the project, 
+and discussed which C++ features we wanted to implement. All members came.
+Decided on the file input for levels. Three types of enemies, multple turrets, 
+including damage and slow. Nothing was assigned.
+
+March 19: 8 PM
+Discussed what we wanted to do for lab 8. We decided to use SDL for graphics, 
+and we all looked at lazy foo tutorials. mbau was assigned to make background 
+images and some prototype enemy and turret images. ccroson was assigned to work
+on text file input for levels. slu was assigned to work on animation for the enemy 
+movement and turrets.
+
+April 4: 8 PM
+Talked about what we were doing for lab9. We decided on what we wanted the menu
+to look like. We decided to use a sidebar (which we later scraped). ccroson was 
+assigned to work on the tower placement, slu was assigned to work on enemy movement, 
+mbau was assigned to implement menu system.
+
+April 18: 8 PM
+Talked about what we did for lab 10. slu was assigned targeting system. mbau was 
+assigned to implement the vectors for enemies and turret organization, ccroson 
+was assigned to make a function to render objects from the vectors. 
+
+April 20 3 PM
+Met to combine code between ccroson, mbau, and slu. Up until now we were not using 
+github effectively, and we were essentially working on several different versions 
+of the same project. The combination was a group effort. mbau was assigned to complete 
+sprites for all enemies, turrets, background, and menu icons.
+
+April 28 8 PM
+Met to rediscuss the menu issues. Pie menus were decided on. ccroson would implement 
+mbau's menu icons into the pie menus. Solved some github issues. slu was assigned to 
+implement the slow turrets.
+
+April 30 6 PM
+Met to finish up project. slu made new targeting system. mbau worked on balancing the
+game for final play. ccroson worked on debugging some seg faults.
+
+May 1 8 PM
+Worked for finish up paper work, finalize project.
+
+All members attended all meetings.   
