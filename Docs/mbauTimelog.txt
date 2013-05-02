@@ -1,0 +1,31 @@
+From lab8:
+Saturday, March 23: 4 hrs spent on LazyFoo SDL Tutorials, and getting SDL to work in Eclipse and on personal computer
+Tuesday, March 26: 2 hrs spend on LazyFoo SDL Tutorials
+Wednesday, March 27: 1 hr spent learning GIMP, making background image
+Thursday, March 28: 3 hrs spend combining code learned from tutorials to create finished product, completing report
+
+From lab9:
+Saturday, March 30: 1 hr spent researching (aka playing) some existing tower defense games to see how their GUI and turret selection was set up.
+Tuesday, April 2: 2 hr worked on lab, additional Lazy Foo Tutorials
+Thursday, April 4: 3 hr Worked on lab, during and after lab
+Sunday, April 7: .5 hr Met with group members to discuss GUI, map options.
+Tuesday, April 9: 3 hrs Finished lab, wrote report.
+
+From lab10:
+April 11: 2 Hours, Worked with Sirui Lu on STL containers for turrets, enemies,
+bullets.
+April 13: 2 Hours, made more images for the game (some are still in progress,
+like the sprite sheets for the enemy to turn and the turrets to rotate, these
+have not yet been implemented).
+April 18: 3 Hours, worked with Sirui Lu on implementations of the algorithms
+for the firing of the turrets and bullet trajectory.
+April 19: 30 mins, writing this report.
+
+Since lab10:
+April 20, 2 hrs combining code from ccroson, slu, and myself
+April 21, 2 hours spent making sprite sheets in gimp
+April  23, 2 hrs combining code
+April 29, 2 hrs spent commenting code
+May 1, 2 hours spent balancing game, polish
+
+total~37 hours spent
