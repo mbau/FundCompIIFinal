@@ -61,29 +61,11 @@ bool Level::Init(char *filename)
 	return true;
 };
 
+// Renders everything in layers
 void Level::Render()
 {
 	RenderGrid();
-
-	// Highlight stuff
-	Tower* temp = NULL;
-	if ((temp = isTower(MouseGrid.x, MouseGrid.y)))
-	{
-		temp->DrawRange();
-	}
-	else if (isValid(MouseGrid.x, MouseGrid.y))
-	{
-		Surface::DrawRect(Surface::Display,
-			MouseGrid.x*TILESIZE, MouseGrid.y*TILESIZE,
-			TILESIZE, TILESIZE, 0, 255, 0, 64); 
-	}
-	else
-	{
-		Surface::DrawRect(Surface::Display,
-			MouseGrid.x*TILESIZE, MouseGrid.y*TILESIZE,
-			TILESIZE, TILESIZE, 255, 0, 0, 64); 
-	}
-
+	RenderHighlight();
 	RenderTowers();	
 	RenderEnemies();
 	RenderShots();
@@ -100,6 +82,28 @@ void Level::RenderGrid()
 			Surface::DrawSprite(Grid[i][j], 0,
 					j*TILESIZE, i*TILESIZE);
 		}
+	}
+};
+
+// Highlight stuff
+void Level::RenderHighlight()
+{
+	Tower* temp = NULL;
+	if ((temp = isTower(MouseGrid.x, MouseGrid.y)))
+	{
+		temp->DrawRange();
+	}
+	else if (isValid(MouseGrid.x, MouseGrid.y))
+	{
+		Surface::DrawRect(Surface::Display,
+			MouseGrid.x*TILESIZE, MouseGrid.y*TILESIZE,
+			TILESIZE, TILESIZE, 0, 255, 0, 64); 
+	}
+	else
+	{
+		Surface::DrawRect(Surface::Display,
+			MouseGrid.x*TILESIZE, MouseGrid.y*TILESIZE,
+			TILESIZE, TILESIZE, 255, 0, 0, 64); 
 	}
 };
 
@@ -124,6 +128,10 @@ void Level::RenderEnemies()
 	if (j < (int)Grid.size() && j >= 0 && i < (int)Grid[0].size() && i >= 0)
 	{
 		Surface::DrawSprite(Grid[j][i], 0, j*TILESIZE, i*TILESIZE);
+
+		// Redraw highlight if needed
+		if (i == MouseGrid.x && j == MouseGrid.y)
+			RenderHighlight();
 	}
 };
 

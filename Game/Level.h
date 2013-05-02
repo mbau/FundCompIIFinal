@@ -20,6 +20,7 @@ class Level {
 		void Update(double dt);
 
 		void RenderGrid();
+		void RenderHighlight();
 		void RenderTowers();
 		void RenderEnemies();
 		void RenderShots();

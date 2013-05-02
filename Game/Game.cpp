@@ -339,7 +339,10 @@ void Game::OnLClickRelease(int x, int y)
 // Process right click
 void Game::OnRClick(int x, int y)
 {
-	if (!menu.On)
+	if (!menu.On &&
+		currentLevel->MouseGrid.x >= 0 && currentLevel->MouseGrid.y >= 0
+		&& currentLevel->MouseGrid.y < (int)currentLevel->Grid.size() &&
+		currentLevel->MouseGrid.x < (int)currentLevel->Grid[0].size() )
 	{
 		menu.On = true;//turn menu on
 		menu.x = (.5 + currentLevel->MouseGrid.x)*TILESIZE + Surface::Padding;//start menu at the locations
@@ -411,10 +414,10 @@ void Game::OnMouseMove(int x, int y)
 	Mouse.y = y;
 	if (!menu.On)//if the menu is off
 	{
-		currentLevel->MouseGrid.x = (Mouse.x-Surface::Padding)//which grid box the mouse is in
-						/ TILESIZE;
-		currentLevel->MouseGrid.y = (Mouse.y-Surface::Padding)
-						/ TILESIZE;
+		currentLevel->MouseGrid.x = (Mouse.x / TILESIZE)
+			- (Surface::Padding / TILESIZE);//which grid box the mouse is in
+		currentLevel->MouseGrid.y = (Mouse.y / TILESIZE)
+			- (Surface::Padding / TILESIZE);
 	}
 };
 
