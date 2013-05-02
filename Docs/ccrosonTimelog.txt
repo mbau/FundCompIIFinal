@@ -1,0 +1,36 @@
+START TIMELOG
+
+
+// Chris Croson -- Final Project -- timelog
+        // Copied from Lab 8
+0.5     --Setting up GitHub
+1.0     --Browsing tutorials
+1.5     --Implementing code
+1.0     --Setting up and planning for future code
+
+        // Copied from Lab 9
+1.0     --Finally getting command line git to work
+0.5     --Adding proper transparent rectangle overlays
+1.0     --Implementing Level class
+4.0     --Implementing Entity class (lots of bugs)
+1.0     --Groups meetings and discussions
+1.0     --Reading SDL documentation
+
+        // Copied from Lab 10
+3.0     --Playing TD games, aka "Researching designs and UI layouts"
+3.0     --Coding stuff
+1.0     --Group meeting
+1.0     --Trying to find the font files on the Linux machines
+
+        // Post Lab 10
+~10     --Group coding sessions
+~6      --Solo coding
+1.0     --Documentation (e.g. this) and UML diagram
+
+---------------------------------------
+        // TOTAL
+~36.5 Hours
+(For details on the coding, check the github commit descriptions)
+
+
+END TIMELOG
