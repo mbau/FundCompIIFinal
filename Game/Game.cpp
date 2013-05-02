@@ -10,14 +10,16 @@ using namespace std;
 const double FRAMETIME = 1./60.; //Framerate for animation
 
 // Default constructor
-Game::Game() 
+Game::Game(string lvlID) 
 {
-	windowWidth = 600; //window size start variables
+	windowWidth = 600; // Default window size, overwritten in Init
 	windowHeight = 400;
 
 	Running = true; 
 
 	menu.On = false;
+
+	levelID = lvlID;
 };
 
 // Game setup
@@ -30,7 +32,8 @@ bool Game::Init()
 
 	// Create a new level
 	currentLevel = new Level();
-	if (!currentLevel->Init("resources/lvl0.txt"))
+	string filename = "resources/lvl"+levelID+".txt";
+	if (!currentLevel->Init(filename.c_str()))
 		return false;
 
 	Surface::Padding = TILESIZE;

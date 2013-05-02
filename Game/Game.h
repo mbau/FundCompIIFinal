@@ -7,10 +7,13 @@
 #include <SDL/SDL.h>
 #include "Level.h"
 #include "Tower.h"
+#include <string>
+
+using namespace std;
 
 class Game {
 	public:
-		Game();
+		Game(string lvlID);
 		int Run();
 	private:
 		// Main game functions
@@ -28,6 +31,7 @@ class Game {
 
 		bool Running;
 
+		string levelID;
 		Level *currentLevel;
 
 		// Pie menu stuff

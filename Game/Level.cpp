@@ -19,13 +19,16 @@ Level::Level()
 	Player.money = 1000;
 };
 
-bool Level::Init(char *filename)
+bool Level::Init(const char *filename)
 {
 	fstream File;
 	File.open(filename, fstream::in);
 
 	if (!File)
+	{
+		cout << "Invalid file name" << endl;
 		return false;
+	}
 
 	// Read in level size
 	int xMax, yMax;
@@ -127,7 +130,7 @@ void Level::RenderEnemies()
 	int j = pathY.back()/TILESIZE;
 	if (j < (int)Grid.size() && j >= 0 && i < (int)Grid[0].size() && i >= 0)
 	{
-		Surface::DrawSprite(Grid[j][i], 0, j*TILESIZE, i*TILESIZE);
+		Surface::DrawSprite(Grid[j][i], 0, i*TILESIZE, j*TILESIZE);
 
 		// Redraw highlight if needed
 		if (i == MouseGrid.x && j == MouseGrid.y)

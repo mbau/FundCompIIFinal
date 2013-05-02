@@ -1,0 +1,27 @@
+Fund Comp II Final Project -- Save the Fort! -- report.txt
+
+The program is compiled from the source code by running make from the
+directory containing the source code files. The program requires SDL and
+SDL_gfxPrimitives to compile. The final program can then be run as "main". If
+an argument is specified, the game loads lvlARG.txt as the level. By default,
+it loads lvl0.txt.
+
+When executed, the game starts up immediately. Endless waves of enemies appear
+and follow a path to the base. If they reach the base, the player loses a
+life. When the player runs out of lives, the game is over. The player's money,
+lives, and score are all displayed at the top of the screen. To hold off the
+enemies, the player must construct towers and upgrade their abilities. This
+costs money, which is earned by defeating enemies.
+
+To interact with the program, the player holds either left or right click to
+open a pie menu on the current position. If a tower may be constructed, a list
+of towers (currently Artillery and Slow) appears. While holding the mouse
+button, the player highlights the desired option and releases the mouse
+button. If the option is valid (i.e. can be afforded), the tower is built.
+Likewise, if a tower is selcted, the menu presents a list of options relevant
+to that tower type (i.e. freeze vs. damage). When selected, the corresponding
+tower attribute is upgraded. Towers may also be destroyed to make room for
+another tower. All build and upgrade options cost $500.
+
+Required librarys: libSDL, libSDL_gfx
+Known bugs: None

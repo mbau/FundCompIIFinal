@@ -15,7 +15,7 @@ using namespace std;
 class Level {
 	public:
 		Level();
-		bool Init(char* filename);
+		bool Init(const char* filename);
 		void Render();
 		void Update(double dt);
 
