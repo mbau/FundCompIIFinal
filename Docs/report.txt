@@ -23,5 +23,6 @@ to that tower type (i.e. freeze vs. damage). When selected, the corresponding
 tower attribute is upgraded. Towers may also be destroyed to make room for
 another tower. All build and upgrade options cost $500.
 
+Repository: github.com/mbau/FundCompIIFinal
 Required librarys: libSDL, libSDL_gfx
 Known bugs: None
