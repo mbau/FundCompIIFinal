@@ -1,0 +1,35 @@
+Time Log for Ray Lu
+
+
+March 20: met as group
+
+March 25 – 3 hours: Reading tutorials and learning to draw objects
+
+March 26 – 1 hour: Make shape appear on mouseclick, and other events
+
+March 27 – 2 hours: Animating objects
+
+April 2 – 2 hours: Grid system and onHover
+
+April 4 – 1 hour: Making classes for moving objects
+
+April 7 – 3 hours: Redesigning grid system, debugging
+
+April 11 – 2 hours: implementing STL containers
+
+April 14 – 1 hour: Making sprites, slight gameplay changes
+
+April 17 – 2 hours: calculating algorithms
+
+April 18 – 3 hours: Implementing algorithms for projectiles and health system
+
+April 20 – 2 hours: Combining code, implementing changes
+
+April 23 – 2 hours: Combining code, mathematical calculations
+
+April 30 – 4 hours: Making slowing bullets, testing, minor changes
+
+May 1 – 2 hours: Debugging, testing, minor changes
+
+
+total 30 hours
