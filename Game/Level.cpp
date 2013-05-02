@@ -119,9 +119,12 @@ void Level::RenderEnemies()
 	};
 	
 	// Draw the last path tile on top; enemies 'enter' the fort
-	int i = pathX.back();
-	int j = pathY.back();
-	Surface::DrawSprite(Grid[i][j], 0, j*TILESIZE, i*TILESIZE);
+	int i = pathX.back()/TILESIZE;
+	int j = pathY.back()/TILESIZE;
+	if (j < (int)Grid.size() && j >= 0 && i < (int)Grid[0].size() && i >= 0)
+	{
+		Surface::DrawSprite(Grid[j][i], 0, j*TILESIZE, i*TILESIZE);
+	}
 };
 
 void Level::RenderShots()

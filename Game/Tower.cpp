@@ -25,7 +25,7 @@ void Tower::SetType(int newType)
 			SetParams(1.5*TILESIZE, 15, 2);
 			break;
 		case 1:
-			SetParams(1.5*TILESIZE, .2, 30);
+			SetParams(1.5*TILESIZE, .3, 30);
 			break;
 	};
 };
@@ -74,13 +74,13 @@ void Tower::Upgrade(int upgradeType)
 			switch(upgradeType)
 			{
 				case 0:
-					power += 100;//increased power
+					power += 15;//increased power
 					break;
 				case 1:
 					range += TILESIZE;//increased range
 					break;
 				case 2:
-					rate *= 2;//increased fire rate
+					rate += 1;//increased fire rate
 					break;
 			}
 			break;
@@ -176,7 +176,7 @@ bool Tower::Fire(Enemy &enemy,	vector <Bullet> &Shots)
 					}
 					break;
 				case 1://if fired from a slowing turret
-					enemy.slow(.5);
+					enemy.slow(power);
 					break;
 			}
 		}

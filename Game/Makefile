@@ -8,7 +8,7 @@ OBJECTS = $(SOURCES:.cpp=.o)
 $(BIN):	$(OBJECTS)
 	g++ $(LFLAGS) $(OBJECTS) -o $@
 
-.cpp.o:
+.cpp.o:	Surface.h
 	g++ $(CFLAGS) $<
 
 
